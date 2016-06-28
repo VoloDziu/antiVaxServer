@@ -9,7 +9,7 @@ var authRoutes = express.Router()
 
 authRoutes.get('/setup', function (req, res) {
   User.findOne({
-    name: process.env.AUTH_SERVER_SUSER_NAME
+    name: process.env.ANTIVAX_SERVER_SUSER_NAME
   }, (err, user) => {
     if (err) {
       res.json({
@@ -25,8 +25,8 @@ authRoutes.get('/setup', function (req, res) {
       })
     } else {
       var sUser = new User({
-        name: process.env.AUTH_SERVER_SUSER_NAME,
-        password: bcrypt.hashSync(process.env.AUTH_SERVER_SUSER_PASS, saltRounts),
+        name: process.env.ANTIVAX_SERVER_SUSER_NAME,
+        password: bcrypt.hashSync(process.env.ANTIVAX_SERVER_SUSER_PASS, saltRounts),
         admin: true
       })
 
@@ -55,7 +55,7 @@ authRoutes.post('/authenticate', function (req, res) {
       res.json({ success: false, message: 'Authentication failed (no user)' })
     } else {
       if (bcrypt.compareSync(req.body.password, user.password)) {
-        var token = jwt.sign(user, process.env.AUTH_SERVER_SECRET, {
+        var token = jwt.sign(user, process.env.ANTIVAX_SERVER_SECRET, {
           expiresIn: '24h'
         })
 

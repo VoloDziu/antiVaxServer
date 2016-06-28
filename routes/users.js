@@ -6,7 +6,7 @@ var User = require('../models/user')
 var userRoutes = express.Router()
 
 // GetAll
-userRoutes.get('/', (req, res) => {
+userRoutes.get('/', requiresAuth, (req, res) => {
   User.find({})
     .then(users => {
       res.json({
@@ -23,7 +23,7 @@ userRoutes.get('/', (req, res) => {
 })
 
 // Put
-userRoutes.put('/:userId', (req, res) => {
+userRoutes.put('/:userId', requiresAuth, (req, res) => {
   User.findOne({id: req.params.userId})
     .then(user => {
       for (let prop in req.body.user) {
@@ -50,7 +50,7 @@ userRoutes.put('/:userId', (req, res) => {
 })
 
 // Create
-userRoutes.post('/', (req, res) => {
+userRoutes.post('/', requiresAuth, (req, res) => {
   var user = new User(req.body.user)
 
   user.save()
@@ -69,7 +69,7 @@ userRoutes.post('/', (req, res) => {
 })
 
 // Delete
-userRoutes.delete('/', (req, res) => {
+userRoutes.delete('/', requiresAuth, (req, res) => {
   User.findOne({id: req.body.id})
     .then(user => {
       if (user) {
