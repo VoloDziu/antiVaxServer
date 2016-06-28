@@ -24,7 +24,7 @@ userRoutes.get('/', requiresAuth, (req, res) => {
 
 // Put
 userRoutes.put('/:userId', requiresAuth, (req, res) => {
-  User.findOne({id: req.params.userId})
+  User.findOne({name: req.params.userId})
     .then(user => {
       for (let prop in req.body.user) {
         user[prop] = req.body.user[prop]
