@@ -5,10 +5,10 @@ var morgan = require('morgan')
 var mongoose = require('mongoose')
 
 var authRoutes = require('./routes/auth')
-var sectionRoutes = require('./routes/section')
+var sectionsRoutes = require('./routes/sections')
+var usersRoutes = require('./routes/users')
 
 var port = process.env.PORT || 8080
-var prefix = process.env.ANTIVAX_SERVER_API_PREFIX
 mongoose.connect(`mongodb://${process.env.ANTIVAX_SERVER_DB_USER}:${process.env.ANTIVAX_SERVER_DB_PASS}@${process.env.ANTIVAX_SERVER_DB_HOST}/${process.env.ANTIVAX_SERVER_DB_NAME}`)
 
 // use body parser so we can get info from POST and/or URL parameters
@@ -22,5 +22,6 @@ app.get(`${process.env.ANTIVAX_SERVER_API_PREFIX}/`, (req, res) => {
 })
 
 app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/auth`, authRoutes)
-app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/sections`, sectionRoutes)
+app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/sections`, sectionsRoutes)
+app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/users`, usersRoutes)
 app.listen(port)
