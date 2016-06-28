@@ -16,6 +16,10 @@ app.use(bodyParser.json())
 // use morgan to log requests to the console
 app.use(morgan('dev'))
 
+app.get('/antiVaxServer', (req, res) => {
+  res.json({message: 'hello world'})
+})
+
 app.use('/auth', authRoutes)
 app.use('/sections', sectionRoutes)
 app.listen(port)
