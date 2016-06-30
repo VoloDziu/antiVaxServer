@@ -17,6 +17,12 @@ app.use(bodyParser.json())
 // use morgan to log requests to the console
 app.use(morgan('dev'))
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*")
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+  next()
+})
+
 app.get(`${process.env.ANTIVAX_SERVER_API_PREFIX}/`, (req, res) => {
   res.json({message: 'hello world'})
 })
