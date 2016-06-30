@@ -7,11 +7,11 @@ var User = require('../models/user')
 var authRoutes = express.Router()
 
 const canAccess = (user, app) => {
-  return user.apps.indexOf(app)) !== -1
+  return user.apps.indexOf(app) !== -1
 }
 
 authRoutes.post('/authenticate', (req, res) => {
-  const app = req.body.app  
+  const app = req.body.app
 
   User.findOne({email: req.body.email})
     .then(user => {
@@ -20,17 +20,18 @@ authRoutes.post('/authenticate', (req, res) => {
       } else {
         if (bcrypt.compareSync(req.body.password, user.password)) {
           if (canAccess(user, app)) {
+            var token = jwt.sign(user, process.env.ANTIVAX_SERVER_SECRET, {
+              expiresIn: '24h'
+            })
+
+            res.json({
+              success: true,
+              user: user,
+              token: token
+            })
+          } else {
+            res.status(401).json({ success: false, message: `Access denied for ${user.name}` })
           }
-
-          var token = jwt.sign(user, process.env.ANTIVAX_SERVER_SECRET, {
-            expiresIn: '24h'
-          })
-
-          res.json({
-            success: true,
-            user: user,
-            token: token
-          })
         } else {
           res.status(422).json({ success: false, message: 'Authentication failed: invalid password' })
         }
@@ -49,7 +50,7 @@ authRoutes.post('/verify', (req, res) => {
     const user = jwt.verify(req.body.token)
     const app = req.body.app
 
-    if (caAccess(user, app)) {
+    if (canAccess(user, app)) {
       res.json({
         success: true,
         user
@@ -57,10 +58,10 @@ authRoutes.post('/verify', (req, res) => {
     } else {
       res.status(401).json({
         success: false,
-        message: `Access denied for ${user.name}` 
+        message: `Access denied for ${user.name}`
       })
     }
-  } catch {
+  } catch (e) {
     req.status(401).json({
       success: false,
       message: 'token has expired'

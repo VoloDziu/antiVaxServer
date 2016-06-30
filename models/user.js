@@ -24,10 +24,7 @@ var userSchema = new Schema({
     type: String,
     required: true
   },
-  admin: {
-    type: Boolean,
-    required: true
-  }
+  apps: [String]
 })
 
 userSchema.plugin(jsonSelect, 'id name email admin')
