@@ -1,12 +1,13 @@
 var express = require('express')
 
 var Section = require('../models/section')
-var requiresAuth = require('../middleware/requiresAuth')
+var authenticate = require('../middleware/authenticate')
+var authorize = require('../middleware/authorize')
 
 var sectionRoutes = express.Router()
 
 // GetAll
-sectionRoutes.get('/', requiresAuth, (req, res) => {
+sectionRoutes.get('/', authenticate, authorize, (req, res) => {
   Section.find({})
     .then(sections => {
       res.json({
@@ -23,7 +24,7 @@ sectionRoutes.get('/', requiresAuth, (req, res) => {
 })
 
 // Get
-sectionRoutes.get('/:sectionId', requiresAuth, (req, res) => {
+sectionRoutes.get('/:sectionId', authenticate, authorize, (req, res) => {
   Section.findOne({id: req.params.sectionId})
     .then(section => {
       if (section) {
@@ -46,7 +47,7 @@ sectionRoutes.get('/:sectionId', requiresAuth, (req, res) => {
 })
 
 // Put
-sectionRoutes.put('/:sectionId', requiresAuth, (req, res) => {
+sectionRoutes.put('/:sectionId', authenticate, authorize, (req, res) => {
   Section.findOne({id: req.params.sectionId})
     .then(section => {
       for (let prop in req.body.section) {
@@ -73,7 +74,7 @@ sectionRoutes.put('/:sectionId', requiresAuth, (req, res) => {
 })
 
 // Create
-sectionRoutes.post('/', requiresAuth, (req, res) => {
+sectionRoutes.post('/', authenticate, authorize, (req, res) => {
   var section = new Section(req.body.section)
 
   section.save()
@@ -92,7 +93,7 @@ sectionRoutes.post('/', requiresAuth, (req, res) => {
 })
 
 // Delete
-sectionRoutes.delete('/', requiresAuth, (req, res) => {
+sectionRoutes.delete('/', authenticate, authorize, (req, res) => {
   Section.findOne({id: req.body.id})
     .then(section => {
       if (section) {
