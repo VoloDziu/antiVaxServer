@@ -11,14 +11,7 @@ sectionRoutes.get('/', authenticate, authorize, (req, res) => {
   Section.find({})
     .then(sections => {
       res.json({
-        success: true,
         sections
-      })
-    })
-    .catch(err => {
-      res.status(500).json({
-        success: false,
-        error: err
       })
     })
 })
@@ -29,20 +22,13 @@ sectionRoutes.get('/:sectionId', authenticate, authorize, (req, res) => {
     .then(section => {
       if (section) {
         res.json({
-          success: true,
           section
         })
       } else {
         res.status(404).json({
-          success: false
+          message: 'requested document not found'
         })
       }
-    })
-    .catch(err => {
-      res.status(422).json({
-        success: false,
-        error: err
-      })
     })
 })
 
@@ -50,25 +36,27 @@ sectionRoutes.get('/:sectionId', authenticate, authorize, (req, res) => {
 sectionRoutes.put('/:sectionId', authenticate, authorize, (req, res) => {
   Section.findOne({id: req.params.sectionId})
     .then(section => {
-      for (let prop in req.body.section) {
-        section[prop] = req.body.section[prop]
-      }
+      if (section) {
+        for (let prop in req.body.section) {
+          section[prop] = req.body.section[prop]
+        }
 
-      if (section.save()) {
-        res.json({
-          success: true,
-          section
-        })
+        return section.save()
       } else {
-        res.status(422).json({
-          success: false
+        res.status(404).json({
+          message: 'requested document not found'
         })
       }
     })
+    .then(section => {
+      res.json({
+        message: 'documents were successfully updated',
+        section
+      })
+    })
     .catch(err => {
-      res.status(500).json({
-        success: false,
-        error: err
+      res.status(400).json({
+        message: err
       })
     })
 })
@@ -79,15 +67,14 @@ sectionRoutes.post('/', authenticate, authorize, (req, res) => {
 
   section.save()
     .then(section => {
-      res.send({
-        success: true,
+      res.json({
+        message: 'document was successfully created',
         section
       })
     })
     .catch(err => {
-      res.status(422).json({
-        success: false,
-        error: err
+      res.status(400).json({
+        message: err
       })
     })
 })
@@ -99,20 +86,14 @@ sectionRoutes.delete('/', authenticate, authorize, (req, res) => {
       if (section) {
         section.remove()
 
-        res.json({
-          success: true
+        res.status(200).json({
+          message: 'document was successfully deleted'
         })
       } else {
         res.status(404).json({
-          success: false
+          message: 'requested document not found'
         })
       }
-    })
-    .catch(err => {
-      res.status(500).json({
-        success: false,
-        error: err
-      })
     })
 })
 
