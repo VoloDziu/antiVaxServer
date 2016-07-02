@@ -9,7 +9,11 @@ authRoutes.post('/authenticate', (req, res) => {
   User.findOne({email: req.body.email})
     .then(user => {
       if (!user) {
-        res.status(422).json({ message: 'Authentication failed: no such user' })
+        res.status(422).json({
+          success: false,
+          data: {},
+          message: 'Authentication failed: no such user'
+        })
       } else {
         if (bcrypt.compareSync(req.body.password, user.password)) {
           var token = jwt.sign(user, process.env.ANTIVAX_SERVER_SECRET, {
@@ -18,19 +22,20 @@ authRoutes.post('/authenticate', (req, res) => {
 
           res.json({
             success: true,
-            user: user,
-            token: token
+            data: {
+              user: user,
+              token: token
+            },
+            message: null
           })
         } else {
-          res.status(400).json({ message: 'Authentication failed: invalid password' })
+          res.status(400).json({
+            success: false,
+            data: {},
+            message: 'Authentication failed: invalid password'
+          })
         }
       }
-    })
-    .catch(err => {
-      res.status(500).json({
-        success: false,
-        error: err
-      })
     })
 })
 

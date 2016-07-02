@@ -10,10 +10,15 @@ var authenticate = (req, res, next) => {
       next()
     } catch (err) {
       return res.status(401).json({
-        message: 'Token invalid or expired. Please, log in again.' })
+        success: false,
+        data: {},
+        message: 'Token invalid or expired. Please, log in again.'
+      })
     }
   } else {
     return res.status(400).json({
+      success: false,
+      data: {},
       message: 'No token provided.'
     })
   }
