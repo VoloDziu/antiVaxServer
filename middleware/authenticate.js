@@ -5,11 +5,12 @@ var authenticate = (req, res, next) => {
 
   if (token) {
     try {
-      const user = jwt.verify(token, process.env.AUTH_SERVER_SECRET)
+      const user = jwt.verify(token, process.env.ANTIVAX_SERVER_SECRET)
       req.user = user
       next()
     } catch (err) {
-      return res.status(401).json({ message: 'Token invalid or expired. Please, log in again.' })
+      return res.status(401).json({
+        message: 'Token invalid or expired. Please, log in again.' })
     }
   } else {
     return res.status(400).json({

@@ -8,10 +8,19 @@ var sectionRoutes = express.Router()
 
 // GetAll
 sectionRoutes.get('/', authenticate, authorize, (req, res) => {
+  console.log('in')
   Section.find({})
     .then(sections => {
+      console.log('found')
+
       res.json({
         sections
+      })
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).json({
+        message: 'Oops, something does not seem right :('
       })
     })
 })
@@ -41,23 +50,23 @@ sectionRoutes.put('/:sectionId', authenticate, authorize, (req, res) => {
           section[prop] = req.body.section[prop]
         }
 
-        return section.save()
+        section.save((err, section) => {
+          if (err) {
+            res.status(400).json({
+              message: err
+            })
+          } else {
+            res.json({
+              message: 'documents were successfully updated',
+              section
+            })
+          }
+        })
       } else {
         res.status(404).json({
           message: 'requested document not found'
         })
       }
-    })
-    .then(section => {
-      res.json({
-        message: 'documents were successfully updated',
-        section
-      })
-    })
-    .catch(err => {
-      res.status(400).json({
-        message: err
-      })
     })
 })
 

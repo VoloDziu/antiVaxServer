@@ -27,5 +27,5 @@ var userSchema = new Schema({
   apps: [String]
 })
 
-userSchema.plugin(jsonSelect, 'id name email admin')
+userSchema.plugin(jsonSelect, 'id name email apps')
 module.exports = mongoose.model('User', userSchema)
