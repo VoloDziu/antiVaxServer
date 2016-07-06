@@ -26,7 +26,7 @@ app.use((req, res, next) => {
   next()
 })
 
-app.get(`/${process.env.ANTIVAX_SERVER_API_PREFIX}`, (req, res) => {
+app.get(`${process.env.ANTIVAX_SERVER_API_PREFIX}/`, (req, res) => {
   res.json({
     success: true,
     data: {},
