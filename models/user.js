@@ -24,8 +24,9 @@ var userSchema = new Schema({
     type: String,
     required: true
   },
-  apps: [String]
+  admin: Boolean,
+  lastLoggedInAt: Date
 })
 
-userSchema.plugin(jsonSelect, 'id name email apps')
+userSchema.plugin(jsonSelect, '-password')
 module.exports = mongoose.model('User', userSchema)

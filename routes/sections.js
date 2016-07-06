@@ -1,18 +1,15 @@
 var express = require('express')
 
 var Section = require('../models/section')
-var authenticate = require('../middleware/authenticate')
-var authorize = require('../middleware/authorize')
+var isRegistered = require('../middleware/authorization').isRegistered
+var isAdmin = require('../middleware/authorization').isAdmin
 
 var sectionRoutes = express.Router()
 
 // GetAll
-sectionRoutes.get('/', authenticate, authorize, (req, res) => {
-  console.log('in')
+sectionRoutes.get('/', isRegistered, (req, res) => {
   Section.find({})
     .then(sections => {
-      console.log('found')
-
       res.json({
         success: true,
         data: {
@@ -21,18 +18,10 @@ sectionRoutes.get('/', authenticate, authorize, (req, res) => {
         message: null
       })
     })
-    .catch(err => {
-      console.log(err)
-      res.status(500).json({
-        success: false,
-        data: {},
-        message: 'Oops, something does not seem right :('
-      })
-    })
 })
 
 // Get
-sectionRoutes.get('/:sectionId', authenticate, authorize, (req, res) => {
+sectionRoutes.get('/:sectionId', isRegistered, (req, res) => {
   Section.findOne({id: req.params.sectionId})
     .then(section => {
       if (section) {
@@ -54,13 +43,16 @@ sectionRoutes.get('/:sectionId', authenticate, authorize, (req, res) => {
 })
 
 // Put
-sectionRoutes.put('/:sectionId', authenticate, authorize, (req, res) => {
+sectionRoutes.put('/:sectionId', isRegistered, isAdmin, (req, res) => {
   Section.findOne({id: req.params.sectionId})
     .then(section => {
       if (section) {
         for (let prop in req.body.section) {
           section[prop] = req.body.section[prop]
         }
+
+        section.lastModifiedBy = req.user.name
+        section.lastModifiedAt = Date.now()
 
         section.save((err, section) => {
           if (err) {
@@ -75,7 +67,7 @@ sectionRoutes.put('/:sectionId', authenticate, authorize, (req, res) => {
               data: {
                 section
               },
-              message: 'documents were successfully updated'
+              message: 'document was successfully updated'
             })
           }
         })
@@ -90,8 +82,11 @@ sectionRoutes.put('/:sectionId', authenticate, authorize, (req, res) => {
 })
 
 // Create
-sectionRoutes.post('/', authenticate, authorize, (req, res) => {
-  var section = new Section(req.body.section)
+sectionRoutes.post('/', isRegistered, isAdmin, (req, res) => {
+  var section = new Section(Object.assign({}, req.body.section, {
+    lastModifiedBy: req.user.name,
+    lastModifiedAt: Date.now()
+  }))
 
   section.save()
     .then(section => {
@@ -113,7 +108,7 @@ sectionRoutes.post('/', authenticate, authorize, (req, res) => {
 })
 
 // Delete
-sectionRoutes.delete('/', authenticate, authorize, (req, res) => {
+sectionRoutes.delete('/', isRegistered, isAdmin, (req, res) => {
   Section.findOne({id: req.body.id})
     .then(section => {
       if (section) {

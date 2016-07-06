@@ -2,7 +2,7 @@ var mongoose = require('mongoose')
 mongoose.Promise = require('bluebird')
 var Schema = mongoose.Schema
 
-var pageSchema = new Schema({
+var faqSchema = new Schema({
   id: {
     type: String,
     required: true,
@@ -11,25 +11,19 @@ var pageSchema = new Schema({
   },
   title: {
     type: String,
-    required: true
-  },
-  content: String,
-  items: [this]
-})
-
-var sectionSchema = new Schema({
-  id: {
-    type: String,
     required: true,
-    index: true
+    unique: true
   },
-  title: {
+  content: {
     type: String,
     required: true
+  },
+  published: {
+    type: Boolean,
+    default: false
   },
   lastModifiedBy: String,
-  lastModifiedAt: Date,
-  pages: [pageSchema]
+  lastModifiedAt: Date
 })
 
-module.exports = mongoose.model('Section', sectionSchema)
+module.exports = mongoose.model('Faq', faqSchema)

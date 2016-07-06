@@ -16,9 +16,18 @@ authRoutes.post('/authenticate', (req, res) => {
         })
       } else {
         if (bcrypt.compareSync(req.body.password, user.password)) {
-          var token = jwt.sign(user, process.env.ANTIVAX_SERVER_SECRET, {
+          var payload = {
+            id: user.id,
+            name: user.name,
+            admin: user.admin
+          }
+
+          var token = jwt.sign(payload, process.env.ANTIVAX_SERVER_SECRET, {
             expiresIn: '24h'
           })
+
+          user.lastLoggedInAt = Date.now()
+          user.save()
 
           res.json({
             success: true,
@@ -28,6 +37,57 @@ authRoutes.post('/authenticate', (req, res) => {
             },
             message: null
           })
+        } else {
+          res.status(400).json({
+            success: false,
+            data: {},
+            message: 'Authentication failed: invalid password'
+          })
+        }
+      }
+    })
+})
+
+authRoutes.post('/admin/authenticate', (req, res) => {
+  User.findOne({email: req.body.email})
+    .then(user => {
+      if (!user) {
+        res.status(422).json({
+          success: false,
+          data: {},
+          message: 'Authentication failed: no such user'
+        })
+      } else {
+        if (bcrypt.compareSync(req.body.password, user.password)) {
+          if (user.admin) {
+            var payload = {
+              id: user.id,
+              name: user.name,
+              admin: user.admin
+            }
+
+            var token = jwt.sign(payload, process.env.ANTIVAX_SERVER_SECRET, {
+              expiresIn: '24h'
+            })
+
+            user.lastLoggedInAt = Date.now()
+            user.save()
+
+            res.json({
+              success: true,
+              data: {
+                user: user,
+                token: token
+              },
+              message: null
+            })
+          } else {
+            res.status(401).json({
+              success: false,
+              data: {},
+              message: 'Authorization failed: user is not admin'
+            })
+          }
         } else {
           res.status(400).json({
             success: false,

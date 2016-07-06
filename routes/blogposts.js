@@ -1,21 +1,19 @@
 var express = require('express')
-var bcrypt = require('bcrypt')
 
-var User = require('../models/user')
+var Blogpost = require('../models/blogpost')
 var isRegistered = require('../middleware/authorization').isRegistered
 var isAdmin = require('../middleware/authorization').isAdmin
 
-var userRoutes = express.Router()
-var saltRounds = 10
+var blogpostRoutes = express.Router()
 
 // GetAll
-userRoutes.get('/', isRegistered, isAdmin, (req, res) => {
-  User.find({})
-    .then(users => {
+blogpostRoutes.get('/', isRegistered, (req, res) => {
+  Blogpost.find({})
+    .then(blogposts => {
       res.json({
         success: true,
         data: {
-          users
+          blogposts
         },
         message: null
       })
@@ -23,14 +21,14 @@ userRoutes.get('/', isRegistered, isAdmin, (req, res) => {
 })
 
 // Get
-userRoutes.get('/:userId', isRegistered, isAdmin, (req, res) => {
-  User.findOne({id: req.params.userId})
-    .then(user => {
-      if (user) {
+blogpostRoutes.get('/:blogpostId', isRegistered, (req, res) => {
+  Blogpost.findOne({id: req.params.blogpostId})
+    .then(blogpost => {
+      if (blogpost) {
         res.json({
           success: true,
           data: {
-            user
+            blogpost
           },
           message: null
         })
@@ -45,15 +43,18 @@ userRoutes.get('/:userId', isRegistered, isAdmin, (req, res) => {
 })
 
 // Put
-userRoutes.put('/:userId', isRegistered, isAdmin, (req, res) => {
-  User.findOne({id: req.params.userId})
-    .then(user => {
-      if (user) {
-        for (let prop in req.body.user) {
-          user[prop] = req.body.user[prop]
+blogpostRoutes.put('/:blogpostId', isRegistered, isAdmin, (req, res) => {
+  Blogpost.findOne({id: req.params.blogpostId})
+    .then(blogpost => {
+      if (blogpost) {
+        for (let prop in req.body.blogpost) {
+          blogpost[prop] = req.body.blogpost[prop]
         }
 
-        user.save((err, section) => {
+        blogpost.lastModifiedBy = req.user.name
+        blogpost.lastModifiedAt = Date.now()
+
+        blogpost.save((err, section) => {
           if (err) {
             res.status(400).json({
               success: false,
@@ -64,7 +65,7 @@ userRoutes.put('/:userId', isRegistered, isAdmin, (req, res) => {
             res.json({
               success: true,
               data: {
-                user
+                blogpost
               },
               message: 'document was successfully updated'
             })
@@ -81,17 +82,18 @@ userRoutes.put('/:userId', isRegistered, isAdmin, (req, res) => {
 })
 
 // Create
-userRoutes.post('/', isRegistered, isAdmin, (req, res) => {
-  var user = new User(Object.assign({}, req.body.user, {
-    password: bcrypt.hashSync(req.body.user.password, saltRounds)
+blogpostRoutes.post('/', isRegistered, isAdmin, (req, res) => {
+  var blogpost = new Blogpost(Object.assign({}, req.body.blogpost, {
+    lastModifiedBy: req.user.name,
+    lastModifiedAt: Date.now()
   }))
 
-  user.save()
-    .then(user => {
+  blogpost.save()
+    .then(blogpost => {
       res.json({
         success: true,
         data: {
-          user
+          blogpost
         },
         message: 'document was successfully created'
       })
@@ -106,11 +108,11 @@ userRoutes.post('/', isRegistered, isAdmin, (req, res) => {
 })
 
 // Delete
-userRoutes.delete('/', isRegistered, isAdmin, (req, res) => {
-  User.findOne({id: req.body.id})
-    .then(user => {
-      if (user) {
-        user.remove()
+blogpostRoutes.delete('/', isRegistered, isAdmin, (req, res) => {
+  Blogpost.findOne({id: req.body.id})
+    .then(blogpost => {
+      if (blogpost) {
+        blogpost.remove()
 
         res.status(200).json({
           success: true,
@@ -127,4 +129,4 @@ userRoutes.delete('/', isRegistered, isAdmin, (req, res) => {
     })
 })
 
-module.exports = userRoutes
+module.exports = blogpostRoutes

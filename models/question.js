@@ -9,22 +9,23 @@ var questionSchema = new Schema({
     index: true,
     unique: true
   },
-  postedBy: {
-    name: {
-      type: String,
-      required: true
-    },
-    email: {
-      type: String,
-      required: true
-    }
+  seen: {
+    type: Boolean,
+    default: false
   },
-  content: String,
-  postedAt: {
-    type: Date,
-    default: Date.now
+  posterName: {
+    type: String,
+    required: true
   },
-  seen: Boolean
+  posterEmail: {
+    type: String,
+    required: true
+  },
+  question: {
+    type: String,
+    required: true
+  },
+  postedAt: Date
 })
 
 module.exports = mongoose.model('Question', questionSchema)

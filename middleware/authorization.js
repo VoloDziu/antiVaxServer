@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 
-var authenticate = (req, res, next) => {
+var isRegistered = (req, res, next) => {
   const token = req.body.token || req.query.token || req.headers['x-access-token']
 
   if (token) {
@@ -16,12 +16,27 @@ var authenticate = (req, res, next) => {
       })
     }
   } else {
-    return res.status(400).json({
+    return res.status(401).json({
       success: false,
       data: {},
-      message: 'No token provided.'
+      message: 'No authentication token provided.'
     })
   }
 }
 
-module.exports = authenticate
+const isAdmin = (req, res, next) => {
+  const user = req.user
+
+  if (user.admin) {
+    next()
+  } else {
+    res.status(401).json({
+      success: false,
+      data: {},
+      message: `${user.name} has no admin privileges.`
+    })
+  }
+}
+
+module.exports.isRegistered = isRegistered
+module.exports.isAdmin = isAdmin
