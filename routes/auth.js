@@ -67,7 +67,7 @@ authRoutes.post('/admin/authenticate', (req, res) => {
             }
 
             var token = jwt.sign(payload, process.env.ANTIVAX_SERVER_SECRET, {
-              expiresIn: '24h'
+              expiresIn: '72h'
             })
 
             user.lastLoggedInAt = Date.now()
