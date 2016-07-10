@@ -25,7 +25,11 @@ var questionSchema = new Schema({
     type: String,
     required: true
   },
-  postedAt: Date
+  postedAt: Date,
+  isDeleted: {
+    type: Boolean,
+    default: false
+  }
 })
 
 module.exports = mongoose.model('Question', questionSchema)

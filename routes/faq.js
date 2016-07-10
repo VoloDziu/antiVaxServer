@@ -9,6 +9,7 @@ var faqRoutes = express.Router()
 // GetAll
 faqRoutes.get('/', isRegistered, isAdmin, (req, res) => {
   Faq.find({})
+    .sort('-createdAt')
     .then(faqs => {
       res.json({
         success: true,
@@ -85,7 +86,8 @@ faqRoutes.put('/:faqId', isRegistered, isAdmin, (req, res) => {
 faqRoutes.post('/', isRegistered, isAdmin, (req, res) => {
   var faq = new Faq(Object.assign({}, req.body.faq, {
     lastModifiedBy: req.user.name,
-    lastModifiedAt: Date.now()
+    lastModifiedAt: Date.now(),
+    createdAt: Date.now()
   }))
 
   faq.save()

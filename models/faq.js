@@ -18,12 +18,17 @@ var faqSchema = new Schema({
     type: String,
     required: true
   },
-  published: {
+  isPublished: {
     type: Boolean,
     default: false
   },
+  createdAt: Date,
   lastModifiedBy: String,
-  lastModifiedAt: Date
+  lastModifiedAt: Date,
+  isDeleted: {
+    type: Boolean,
+    default: false
+  }
 })
 
 module.exports = mongoose.model('Faq', faqSchema)
