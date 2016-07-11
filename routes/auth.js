@@ -31,8 +31,7 @@ authRoutes.post('/authenticate', (req, res) => {
               data: {
                 user: user,
                 token: token
-              },
-              message: null
+              }
             })
           } else {
             res.status(400).json({
@@ -86,8 +85,7 @@ authRoutes.post('/admin/authenticate', (req, res) => {
               data: {
                 user: user,
                 token: token
-              },
-              message: null
+              }
             })
           } else {
             res.status(400).json({

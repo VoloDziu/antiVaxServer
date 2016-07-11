@@ -31,8 +31,9 @@ app.use((req, res, next) => {
 app.get(`${process.env.ANTIVAX_SERVER_API_PREFIX}/`, (req, res) => {
   res.json({
     success: true,
-    data: {},
-    message: 'yes, I am working'
+    data: {
+      status: 'working'
+    }
   })
 })
 
