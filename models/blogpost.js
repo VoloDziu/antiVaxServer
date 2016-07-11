@@ -1,5 +1,6 @@
 var mongoose = require('mongoose')
 var uniqueValidator = require('mongoose-unique-validator')
+var striptags = require('striptags')
 mongoose.Promise = require('bluebird')
 var Schema = mongoose.Schema
 
@@ -18,7 +19,13 @@ var blogpostSchema = new Schema({
   },
   content: {
     type: String,
-    required: [true, 'content cannot be empty']
+    required: [true, 'content cannot be empty'],
+    validate: {
+      validator: (v) => {
+        return striptags(v) !== ''
+      },
+      message: 'content cannot be empty'
+    }
   },
   isPublished: {
     type: Boolean,
