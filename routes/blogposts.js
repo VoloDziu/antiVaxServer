@@ -1,4 +1,5 @@
 var express = require('express')
+var ObjectId = require('mongoose').Types.ObjectId
 
 var Blogpost = require('../models/blogpost')
 var isRegistered = require('../middleware/authorization').isRegistered
@@ -9,34 +10,32 @@ var blogpostRoutes = express.Router()
 // GetAll
 blogpostRoutes.get('/', isRegistered, (req, res) => {
   Blogpost.find({})
+    .sort('-createdAt')
     .then(blogposts => {
       res.json({
         success: true,
         data: {
           blogposts
-        },
-        message: null
+        }
       })
     })
 })
 
 // Get
 blogpostRoutes.get('/:blogpostId', isRegistered, (req, res) => {
-  Blogpost.findOne({id: req.params.blogpostId})
+  Blogpost.findOne({_id: ObjectId(req.params.blogpostId)})
     .then(blogpost => {
-      if (blogpost) {
+      if (blogpost && !blogpost.isDeleted) {
         res.json({
           success: true,
           data: {
             blogpost
-          },
-          message: null
+          }
         })
       } else {
         res.status(404).json({
           success: false,
-          data: {},
-          message: 'requested document not found'
+          data: {}
         })
       }
     })
@@ -44,10 +43,11 @@ blogpostRoutes.get('/:blogpostId', isRegistered, (req, res) => {
 
 // Put
 blogpostRoutes.put('/:blogpostId', isRegistered, isAdmin, (req, res) => {
-  Blogpost.findOne({id: req.params.blogpostId})
+  Blogpost.findOne({_id: ObjectId(req.params.blogpostId)})
     .then(blogpost => {
-      if (blogpost) {
+      if (blogpost && !blogpost.isDeleted) {
         for (let prop in req.body.blogpost) {
+          // TODO: exclude comments
           blogpost[prop] = req.body.blogpost[prop]
         }
 
@@ -58,24 +58,21 @@ blogpostRoutes.put('/:blogpostId', isRegistered, isAdmin, (req, res) => {
           if (err) {
             res.status(400).json({
               success: false,
-              data: {},
-              message: err
+              data: err
             })
           } else {
             res.json({
               success: true,
               data: {
                 blogpost
-              },
-              message: 'document was successfully updated'
+              }
             })
           }
         })
       } else {
         res.status(404).json({
           success: false,
-          data: {},
-          message: 'requested document not found'
+          data: {}
         })
       }
     })
@@ -85,48 +82,29 @@ blogpostRoutes.put('/:blogpostId', isRegistered, isAdmin, (req, res) => {
 blogpostRoutes.post('/', isRegistered, isAdmin, (req, res) => {
   var blogpost = new Blogpost(Object.assign({}, req.body.blogpost, {
     lastModifiedBy: req.user.name,
-    lastModifiedAt: Date.now()
+    lastModifiedAt: Date.now(),
+    createdAt: Date.now()
   }))
 
-  blogpost.save()
-    .then(blogpost => {
+  blogpost.save((err, blogpost) => {
+    if (err) {
+      res.status(400).json({
+        success: false,
+        data: err
+      })
+    } else {
       res.json({
         success: true,
         data: {
           blogpost
-        },
-        message: 'document was successfully created'
+        }
       })
-    })
-    .catch(err => {
-      res.status(400).json({
-        success: false,
-        data: {},
-        message: err
-      })
-    })
+    }
+  })
 })
 
-// Delete
-blogpostRoutes.delete('/', isRegistered, isAdmin, (req, res) => {
-  Blogpost.findOne({id: req.body.id})
-    .then(blogpost => {
-      if (blogpost) {
-        blogpost.remove()
-
-        res.status(200).json({
-          success: true,
-          data: {},
-          message: 'document was successfully deleted'
-        })
-      } else {
-        res.status(404).json({
-          success: false,
-          data: {},
-          message: 'requested document not found'
-        })
-      }
-    })
-})
+// TODO: blogpost comments routes:
+// POST /comments/
+// PUT /comments/:id
 
 module.exports = blogpostRoutes

@@ -6,20 +6,25 @@ var isRegistered = (req, res, next) => {
   if (token) {
     try {
       const user = jwt.verify(token, process.env.ANTIVAX_SERVER_SECRET)
+      if (user.isDeleted || !user.isEnabled) {
+        throw new Error()
+      }
       req.user = user
       next()
     } catch (err) {
       return res.status(401).json({
         success: false,
-        data: {},
-        message: 'Token invalid or expired. Please, log in again.'
+        data: {
+          error: 'Token invalid or expired'
+        }
       })
     }
   } else {
     return res.status(401).json({
       success: false,
-      data: {},
-      message: 'No authentication token provided.'
+      data: {
+        error: 'No authentication token'
+      }
     })
   }
 }
@@ -32,8 +37,9 @@ const isAdmin = (req, res, next) => {
   } else {
     res.status(401).json({
       success: false,
-      data: {},
-      message: `${user.name} has no admin privileges.`
+      data: {
+        error: 'Your account does not grant admin access'
+      }
     })
   }
 }

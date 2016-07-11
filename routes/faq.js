@@ -1,4 +1,5 @@
 var express = require('express')
+var ObjectId = require('mongoose').Types.ObjectId
 
 var Faq = require('../models/faq')
 var isRegistered = require('../middleware/authorization').isRegistered
@@ -15,29 +16,26 @@ faqRoutes.get('/', isRegistered, isAdmin, (req, res) => {
         success: true,
         data: {
           faqs
-        },
-        message: null
+        }
       })
     })
 })
 
 // Get
 faqRoutes.get('/:faqId', isRegistered, isAdmin, (req, res) => {
-  Faq.findOne({id: req.params.faqId})
+  Faq.findOne({_id: ObjectId(req.params.faqId)})
     .then(faq => {
-      if (faq) {
+      if (faq && !faq.isDeleted) {
         res.json({
           success: true,
           data: {
             faq
-          },
-          message: null
+          }
         })
       } else {
         res.status(404).json({
           success: false,
-          data: {},
-          message: 'requested document not found'
+          data: {}
         })
       }
     })
@@ -45,9 +43,9 @@ faqRoutes.get('/:faqId', isRegistered, isAdmin, (req, res) => {
 
 // Put
 faqRoutes.put('/:faqId', isRegistered, isAdmin, (req, res) => {
-  Faq.findOne({id: req.params.faqId})
+  Faq.findOne({_id: ObjectId(req.params.faqId)})
     .then(faq => {
-      if (faq) {
+      if (faq && !faq.isDeleted) {
         for (let prop in req.body.faq) {
           faq[prop] = req.body.faq[prop]
         }
@@ -59,24 +57,21 @@ faqRoutes.put('/:faqId', isRegistered, isAdmin, (req, res) => {
           if (err) {
             res.status(400).json({
               success: false,
-              data: {},
-              message: err
+              data: err
             })
           } else {
             res.json({
               success: true,
               data: {
                 faq
-              },
-              message: 'document was successfully updated'
+              }
             })
           }
         })
       } else {
         res.status(404).json({
           success: false,
-          data: {},
-          message: 'requested document not found'
+          data: {}
         })
       }
     })
@@ -90,45 +85,21 @@ faqRoutes.post('/', isRegistered, isAdmin, (req, res) => {
     createdAt: Date.now()
   }))
 
-  faq.save()
-    .then(blogpost => {
+  faq.save((err, faq) => {
+    if (err) {
+      res.status(400).json({
+        success: false,
+        data: err
+      })
+    } else {
       res.json({
         success: true,
         data: {
           faq
-        },
-        message: 'document was successfully created'
+        }
       })
-    })
-    .catch(err => {
-      res.status(400).json({
-        success: false,
-        data: {},
-        message: err
-      })
-    })
-})
-
-// Delete
-faqRoutes.delete('/', isRegistered, isAdmin, (req, res) => {
-  Faq.findOne({id: req.body.id})
-    .then(faq => {
-      if (faq) {
-        faq.remove()
-
-        res.status(200).json({
-          success: true,
-          data: {},
-          message: 'document was successfully deleted'
-        })
-      } else {
-        res.status(404).json({
-          success: false,
-          data: {},
-          message: 'requested document not found'
-        })
-      }
-    })
+    }
+  })
 })
 
 module.exports = faqRoutes

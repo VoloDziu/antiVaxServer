@@ -1,4 +1,5 @@
 var express = require('express')
+var ObjectId = require('mongoose').Types.ObjectId
 
 var Question = require('../models/question')
 var isRegistered = require('../middleware/authorization').isRegistered
@@ -14,29 +15,26 @@ questionRoutes.get('/', isRegistered, isAdmin, (req, res) => {
         success: true,
         data: {
           questions
-        },
-        message: null
+        }
       })
     })
 })
 
 // Get
 questionRoutes.get('/:questionId', isRegistered, isAdmin, (req, res) => {
-  Question.findOne({id: req.params.questionId})
+  Question.findOne({_id: ObjectId(req.params.questionId)})
     .then(question => {
-      if (question) {
+      if (question && !question.isDeleted) {
         res.json({
           success: true,
           data: {
             question
-          },
-          message: null
+          }
         })
       } else {
         res.status(404).json({
           success: false,
-          data: {},
-          message: 'requested document not found'
+          data: {}
         })
       }
     })
@@ -44,9 +42,9 @@ questionRoutes.get('/:questionId', isRegistered, isAdmin, (req, res) => {
 
 // Put
 questionRoutes.put('/:questionId', isRegistered, isAdmin, (req, res) => {
-  Question.findOne({id: req.params.questionId})
+  Question.findOne({_id: ObjectId(req.params.questionId)})
     .then(question => {
-      if (question) {
+      if (question && !question.isDeleted) {
         for (let prop in req.body.question) {
           question[prop] = req.body.question[prop]
         }
@@ -55,24 +53,21 @@ questionRoutes.put('/:questionId', isRegistered, isAdmin, (req, res) => {
           if (err) {
             res.status(400).json({
               success: false,
-              data: {},
-              message: err
+              data: err
             })
           } else {
             res.json({
               success: true,
               data: {
                 question
-              },
-              message: 'document was successfully updated'
+              }
             })
           }
         })
       } else {
         res.status(404).json({
           success: false,
-          data: {},
-          message: 'requested document not found'
+          data: {}
         })
       }
     })
@@ -81,48 +76,24 @@ questionRoutes.put('/:questionId', isRegistered, isAdmin, (req, res) => {
 // Create
 questionRoutes.post('/', isRegistered, (req, res) => {
   var question = new Question(Object.assign({}, req.body.question, {
-    postedAt: Date.now()
+    createdAt: Date.now()
   }))
 
-  question.save()
-    .then(question => {
+  question.save((err, question) => {
+    if (err) {
+      res.status(400).json({
+        success: false,
+        data: err
+      })
+    } else {
       res.json({
         success: true,
         data: {
           question
-        },
-        message: 'document was successfully created'
+        }
       })
-    })
-    .catch(err => {
-      res.status(400).json({
-        success: false,
-        data: {},
-        message: err
-      })
-    })
-})
-
-// Delete
-questionRoutes.delete('/', isRegistered, isAdmin, (req, res) => {
-  Question.findOne({id: req.body.id})
-    .then(question => {
-      if (question) {
-        question.remove()
-
-        res.status(200).json({
-          success: true,
-          data: {},
-          message: 'document was successfully deleted'
-        })
-      } else {
-        res.status(404).json({
-          success: false,
-          data: {},
-          message: 'requested document not found'
-        })
-      }
-    })
+    }
+  })
 })
 
 module.exports = questionRoutes
