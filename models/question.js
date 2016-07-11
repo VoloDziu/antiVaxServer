@@ -1,5 +1,4 @@
 var mongoose = require('mongoose')
-var uniqueValidator = require('mongoose-unique-validator')
 mongoose.Promise = require('bluebird')
 var Schema = mongoose.Schema
 
@@ -27,5 +26,4 @@ var questionSchema = new Schema({
   createdAt: Date
 })
 
-questionSchema.plugin(uniqueValidator, { message: '{VALUE} is already taken' })
 module.exports = mongoose.model('Question', questionSchema)
