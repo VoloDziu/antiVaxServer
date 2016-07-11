@@ -9,6 +9,7 @@ var pageSchema = new Schema({
     required: [true, 'url cannot be empty'],
     index: true,
     unique: true
+    // TODO: add no-spaces validation
   },
   title: {
     type: String,
