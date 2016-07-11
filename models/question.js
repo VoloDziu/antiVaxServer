@@ -4,12 +4,6 @@ mongoose.Promise = require('bluebird')
 var Schema = mongoose.Schema
 
 var questionSchema = new Schema({
-  url: {
-    type: String,
-    required: [true, 'url cannot be empty'],
-    index: true,
-    unique: true
-  },
   posterName: {
     type: String,
     required: [true, 'name cannot be empty']
