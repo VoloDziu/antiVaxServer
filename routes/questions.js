@@ -44,7 +44,7 @@ questionRoutes.get('/:questionId', isRegistered, isAdmin, (req, res) => {
 questionRoutes.put('/:questionId', isRegistered, isAdmin, (req, res) => {
   Question.findOne({_id: ObjectId(req.params.questionId)})
     .then(question => {
-      if (question && !question.isDeleted) {
+      if (question) {
         for (let prop in req.body.question) {
           question[prop] = req.body.question[prop]
         }

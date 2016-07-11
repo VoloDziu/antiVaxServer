@@ -45,7 +45,7 @@ faqRoutes.get('/:faqId', isRegistered, isAdmin, (req, res) => {
 faqRoutes.put('/:faqId', isRegistered, isAdmin, (req, res) => {
   Faq.findOne({_id: ObjectId(req.params.faqId)})
     .then(faq => {
-      if (faq && !faq.isDeleted) {
+      if (faq) {
         for (let prop in req.body.faq) {
           faq[prop] = req.body.faq[prop]
         }

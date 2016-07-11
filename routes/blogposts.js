@@ -45,7 +45,7 @@ blogpostRoutes.get('/:blogpostId', isRegistered, (req, res) => {
 blogpostRoutes.put('/:blogpostId', isRegistered, isAdmin, (req, res) => {
   Blogpost.findOne({_id: ObjectId(req.params.blogpostId)})
     .then(blogpost => {
-      if (blogpost && !blogpost.isDeleted) {
+      if (blogpost) {
         for (let prop in req.body.blogpost) {
           // TODO: exclude comments
           blogpost[prop] = req.body.blogpost[prop]

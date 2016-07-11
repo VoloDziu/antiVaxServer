@@ -45,7 +45,7 @@ sectionRoutes.get('/:sectionId', isRegistered, (req, res) => {
 sectionRoutes.put('/:sectionId', isRegistered, isAdmin, (req, res) => {
   Section.findOne({_id: ObjectId(req.params.sectionId)})
     .then(section => {
-      if (section && !section.isDeleted) {
+      if (section) {
         for (let prop in req.body.section) {
           if (prop !== 'pages') {
             section[prop] = req.body.section[prop]
@@ -147,10 +147,10 @@ sectionRoutes.post('/:sectionId/pages', isRegistered, isAdmin, (req, res) => {
 sectionRoutes.put('/:sectionId/pages/:pageId', isRegistered, isAdmin, (req, res) => {
   Section.find({_id: ObjectId(req.params.sectionId)})
     .then(section => {
-      if (section && !section.isDeleted) {
+      if (section) {
         var page = section.pages.id(ObjectId(req.params.pageId))
 
-        if (page && !page.isDeleted) {
+        if (page) {
           for (let prop in req.body.page) {
             page[prop] = req.body.page[prop]
           }

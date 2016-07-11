@@ -47,7 +47,7 @@ userRoutes.get('/:userId', isRegistered, isAdmin, (req, res) => {
 userRoutes.put('/:userId', isRegistered, isAdmin, (req, res) => {
   User.findOne({_id: ObjectId(req.params.userId)})
     .then(user => {
-      if (user && !user.isDeleted) {
+      if (user) {
         for (let prop in req.body.user) {
           if (prop !== 'password') {
             user[prop] = req.body.user[prop]
