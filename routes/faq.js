@@ -102,4 +102,24 @@ faqRoutes.post('/', isRegistered, isAdmin, (req, res) => {
   })
 })
 
+// Delete
+faqRoutes.delete('/:faqId', isRegistered, isAdmin, (req, res) => {
+  Faq.findOne({_id: ObjectId(req.params.faqId)})
+    .then(faq => {
+      if (faq) {
+        faq.remove()
+
+        res.json({
+          success: true,
+          data: {}
+        })
+      } else {
+        res.status(404).json({
+          success: false,
+          data: {}
+        })
+      }
+    })
+})
+
 module.exports = faqRoutes

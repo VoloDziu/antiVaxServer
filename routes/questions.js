@@ -96,4 +96,24 @@ questionRoutes.post('/', isRegistered, (req, res) => {
   })
 })
 
+// Delete
+questionRoutes.delete('/:questionId', isRegistered, isAdmin, (req, res) => {
+  Question.findOne({_id: ObjectId(req.params.questionId)})
+    .then(question => {
+      if (question) {
+        question.remove()
+
+        res.json({
+          success: true,
+          data: {}
+        })
+      } else {
+        res.status(404).json({
+          success: false,
+          data: {}
+        })
+      }
+    })
+})
+
 module.exports = questionRoutes
