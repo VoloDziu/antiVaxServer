@@ -4,6 +4,20 @@ var striptags = require('striptags')
 mongoose.Promise = require('bluebird')
 var Schema = mongoose.Schema
 
+var commentSchema = new Schema({
+  content: {
+    type: String,
+    required: [true, 'content cannot be empty']
+  },
+  createdAt: Date,
+  lastModifiedBy: String,
+  lastModifiedAt: Date,
+  replies: {
+    type: [this],
+    default: []
+  }
+})
+
 var blogpostSchema = new Schema({
   url: {
     type: String,
@@ -37,8 +51,11 @@ var blogpostSchema = new Schema({
   },
   createdAt: Date,
   lastModifiedBy: String,
-  lastModifiedAt: Date
-  // TODO: add comments
+  lastModifiedAt: Date,
+  comments: {
+    type: [commentSchema],
+    default: []
+  }
 })
 
 blogpostSchema.plugin(uniqueValidator, { message: '{VALUE} is already taken' })
