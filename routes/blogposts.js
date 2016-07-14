@@ -48,7 +48,7 @@ blogpostRoutes.put('/:blogpostId', isRegistered, isAdmin, (req, res) => {
       if (blogpost) {
         for (let prop in req.body.blogpost) {
           if (prop === 'comments') {
-            blogpost.comments = req.body.comments.filter(c => !c.isDeleted).map(c => {
+            blogpost.comments = req.body.blogpost.comments.filter(c => !c.isDeleted).map(c => {
               return Object.assign({}, c, {
                 replies: c.replies.filter(r => !r.isDeleted)
               })
