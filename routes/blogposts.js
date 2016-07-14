@@ -197,7 +197,7 @@ blogpostRoutes.post('/:blogpostId/comments/:commentId/replies/', isRegistered, (
               res.json({
                 success: true,
                 data: {
-                  reply: blogpost.comments.filter(c => c._id === comment.id)[0].replies[nReplies]
+                  reply: blogpost.comments.filter(c => c._id === comment._id)[0].replies[nReplies]
                 }
               })
             }
