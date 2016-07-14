@@ -4,6 +4,16 @@ var striptags = require('striptags')
 mongoose.Promise = require('bluebird')
 var Schema = mongoose.Schema
 
+var replySchema = new Schema({
+  content: {
+    type: String,
+    required: [true, 'content cannot be empty']
+  },
+  createdAt: Date,
+  lastModifiedBy: String,
+  lastModifiedAt: Date
+})
+
 var commentSchema = new Schema({
   content: {
     type: String,
@@ -13,7 +23,7 @@ var commentSchema = new Schema({
   lastModifiedBy: String,
   lastModifiedAt: Date,
   replies: {
-    type: [this],
+    type: [replySchema],
     default: []
   }
 })
