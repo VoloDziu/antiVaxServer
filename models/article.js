@@ -12,6 +12,16 @@ var articleSchema = new Schema({
     unique: true
     // TODO: add no-spaces validation
   },
+  type: {
+    id: {
+      type: String,
+      required: [true, 'type id cannot be empty']
+    },
+    label: {
+      type: String,
+      required: [true, 'type label cannot be empty']
+    }
+  },
   title: {
     type: String,
     required: [true, 'title cannot be empty'],
