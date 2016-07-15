@@ -104,4 +104,24 @@ userRoutes.post('/', isRegistered, isAdmin, (req, res) => {
   })
 })
 
+// Delete
+userRoutes.delete('/:userId', isRegistered, isAdmin, (req, res) => {
+  User.findOne({_id: ObjectId(req.params.userId)})
+    .then(user => {
+      if (user) {
+        user.remove()
+
+        res.json({
+          success: true,
+          data: {}
+        })
+      } else {
+        res.status(404).json({
+          success: false,
+          data: {}
+        })
+      }
+    })
+})
+
 module.exports = userRoutes
