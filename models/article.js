@@ -4,7 +4,7 @@ var striptags = require('striptags')
 mongoose.Promise = require('bluebird')
 var Schema = mongoose.Schema
 
-var faqSchema = new Schema({
+var articleSchema = new Schema({
   url: {
     type: String,
     required: [true, 'url cannot be empty'],
@@ -31,14 +31,10 @@ var faqSchema = new Schema({
     type: Boolean,
     default: false
   },
-  isDeleted: {
-    type: Boolean,
-    default: false
-  },
   createdAt: Date,
   lastModifiedBy: String,
   lastModifiedAt: Date
 })
 
-faqSchema.plugin(uniqueValidator, { message: '{VALUE} is already taken' })
-module.exports = mongoose.model('Faq', faqSchema)
+articleSchema.plugin(uniqueValidator, { message: '{VALUE} is already taken' })
+module.exports = mongoose.model('Article', articleSchema)

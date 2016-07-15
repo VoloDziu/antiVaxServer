@@ -5,11 +5,10 @@ var morgan = require('morgan')
 var mongoose = require('mongoose')
 
 var authRoutes = require('./routes/auth')
-var sectionsRoutes = require('./routes/sections')
 var usersRoutes = require('./routes/users')
 var blogpostsRoutes = require('./routes/blogposts')
 var questionsRoutes = require('./routes/questions')
-var faqRoutes = require('./routes/faq')
+var articleRoutes = require('./routes/article')
 
 var port = process.env.PORT || 3000
 mongoose.connect(`mongodb://${process.env.ANTIVAX_SERVER_DB_USER}:${process.env.ANTIVAX_SERVER_DB_PASS}@${process.env.ANTIVAX_SERVER_DB_HOST}/${process.env.ANTIVAX_SERVER_DB_NAME}`)
@@ -38,9 +37,8 @@ app.get(`${process.env.ANTIVAX_SERVER_API_PREFIX}/`, (req, res) => {
 })
 
 app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/auth`, authRoutes)
-app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/sections`, sectionsRoutes)
 app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/users`, usersRoutes)
 app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/blogposts`, blogpostsRoutes)
 app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/questions`, questionsRoutes)
-app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/faqs`, faqRoutes)
+app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/articles`, articleRoutes)
 app.listen(port)

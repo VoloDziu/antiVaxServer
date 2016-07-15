@@ -1,35 +1,35 @@
 var express = require('express')
 var ObjectId = require('mongoose').Types.ObjectId
 
-var Faq = require('../models/faq')
+var Article = require('../models/article')
 var isRegistered = require('../middleware/authorization').isRegistered
 var isAdmin = require('../middleware/authorization').isAdmin
 
-var faqRoutes = express.Router()
+var articleRoutes = express.Router()
 
 // GetAll
-faqRoutes.get('/', isRegistered, isAdmin, (req, res) => {
-  Faq.find({})
+articleRoutes.get('/', isRegistered, isAdmin, (req, res) => {
+  Article.find({})
     .sort('-createdAt')
-    .then(faqs => {
+    .then(articles => {
       res.json({
         success: true,
         data: {
-          faqs
+          articles
         }
       })
     })
 })
 
 // Get
-faqRoutes.get('/:faqId', isRegistered, isAdmin, (req, res) => {
-  Faq.findOne({_id: ObjectId(req.params.faqId)})
-    .then(faq => {
-      if (faq && !faq.isDeleted) {
+articleRoutes.get('/:articleId', isRegistered, isAdmin, (req, res) => {
+  Article.findOne({_id: ObjectId(req.params.articleId)})
+    .then(article => {
+      if (article) {
         res.json({
           success: true,
           data: {
-            faq
+            article
           }
         })
       } else {
@@ -42,18 +42,18 @@ faqRoutes.get('/:faqId', isRegistered, isAdmin, (req, res) => {
 })
 
 // Put
-faqRoutes.put('/:faqId', isRegistered, isAdmin, (req, res) => {
-  Faq.findOne({_id: ObjectId(req.params.faqId)})
-    .then(faq => {
-      if (faq) {
-        for (let prop in req.body.faq) {
-          faq[prop] = req.body.faq[prop]
+articleRoutes.put('/:articleId', isRegistered, isAdmin, (req, res) => {
+  Article.findOne({_id: ObjectId(req.params.articleId)})
+    .then(article => {
+      if (article) {
+        for (let prop in req.body.article) {
+          article[prop] = req.body.article[prop]
         }
 
-        faq.lastModifiedBy = req.user.name
-        faq.lastModifiedAt = Date.now()
+        article.lastModifiedBy = req.user.name
+        article.lastModifiedAt = Date.now()
 
-        faq.save((err, section) => {
+        article.save((err, section) => {
           if (err) {
             res.status(400).json({
               success: false,
@@ -63,7 +63,7 @@ faqRoutes.put('/:faqId', isRegistered, isAdmin, (req, res) => {
             res.json({
               success: true,
               data: {
-                faq
+                article
               }
             })
           }
@@ -78,14 +78,14 @@ faqRoutes.put('/:faqId', isRegistered, isAdmin, (req, res) => {
 })
 
 // Create
-faqRoutes.post('/', isRegistered, isAdmin, (req, res) => {
-  var faq = new Faq(Object.assign({}, req.body.faq, {
+articleRoutes.post('/', isRegistered, isAdmin, (req, res) => {
+  var article = new Article(Object.assign({}, req.body.article, {
     lastModifiedBy: req.user.name,
     lastModifiedAt: Date.now(),
     createdAt: Date.now()
   }))
 
-  faq.save((err, faq) => {
+  article.save((err, article) => {
     if (err) {
       res.status(400).json({
         success: false,
@@ -95,7 +95,7 @@ faqRoutes.post('/', isRegistered, isAdmin, (req, res) => {
       res.json({
         success: true,
         data: {
-          faq
+          article
         }
       })
     }
@@ -103,11 +103,11 @@ faqRoutes.post('/', isRegistered, isAdmin, (req, res) => {
 })
 
 // Delete
-faqRoutes.delete('/:faqId', isRegistered, isAdmin, (req, res) => {
-  Faq.findOne({_id: ObjectId(req.params.faqId)})
-    .then(faq => {
-      if (faq) {
-        faq.remove()
+articleRoutes.delete('/:articleId', isRegistered, isAdmin, (req, res) => {
+  Article.findOne({_id: ObjectId(req.params.articleId)})
+    .then(article => {
+      if (article) {
+        article.remove()
 
         res.json({
           success: true,
@@ -122,4 +122,4 @@ faqRoutes.delete('/:faqId', isRegistered, isAdmin, (req, res) => {
     })
 })
 
-module.exports = faqRoutes
+module.exports = articleRoutes
