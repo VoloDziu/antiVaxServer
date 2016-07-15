@@ -6,7 +6,6 @@ var mongoose = require('mongoose')
 
 var authRoutes = require('./routes/auth')
 var usersRoutes = require('./routes/users')
-var blogpostsRoutes = require('./routes/blogposts')
 var questionsRoutes = require('./routes/questions')
 var articleRoutes = require('./routes/article')
 
@@ -38,7 +37,6 @@ app.get(`${process.env.ANTIVAX_SERVER_API_PREFIX}/`, (req, res) => {
 
 app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/auth`, authRoutes)
 app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/users`, usersRoutes)
-app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/blogposts`, blogpostsRoutes)
 app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/questions`, questionsRoutes)
 app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/articles`, articleRoutes)
 app.listen(port)

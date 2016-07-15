@@ -47,7 +47,15 @@ articleRoutes.put('/:articleId', isRegistered, isAdmin, (req, res) => {
     .then(article => {
       if (article) {
         for (let prop in req.body.article) {
-          article[prop] = req.body.article[prop]
+          if (prop === 'comments') {
+            article.comments = req.body.article.comments.filter(c => !c.isDeleted).map(c => {
+              return Object.assign({}, c, {
+                replies: c.replies.filter(r => !r.isDeleted)
+              })
+            })
+          } else {
+            article[prop] = req.body.article[prop]
+          }
         }
 
         article.lastModifiedBy = req.user.name
@@ -113,6 +121,93 @@ articleRoutes.delete('/:articleId', isRegistered, isAdmin, (req, res) => {
           success: true,
           data: {}
         })
+      } else {
+        res.status(404).json({
+          success: false,
+          data: {}
+        })
+      }
+    })
+})
+
+// Create comment
+articleRoutes.post('/:articleId/comments/', isRegistered, (req, res) => {
+  Article.findOne({_id: ObjectId(req.params.articleId)})
+    .then(article => {
+      if (article) {
+        var comment = article.comments.create(Object.assign({}, req.body.comment, {
+          lastModifiedBy: req.user.name,
+          lastModifiedAt: Date.now(),
+          createdAt: Date.now()
+        }))
+
+        var nComments = article.comments.length
+
+        article.comments.push(comment)
+
+        article.save((err, article) => {
+          if (err) {
+            res.status(400).json({
+              success: false,
+              data: err
+            })
+          } else {
+            res.json({
+              success: true,
+              data: {
+                comment: article.comments[nComments]
+              }
+            })
+          }
+        })
+      } else {
+        res.status(404).json({
+          success: false,
+          data: {}
+        })
+      }
+    })
+})
+
+// Create reply
+articleRoutes.post('/:articleId/comments/:commentId/replies/', isRegistered, (req, res) => {
+  Article.findOne({_id: ObjectId(req.params.articleId)})
+    .then(article => {
+      if (article) {
+        var comment = article.comments.id(ObjectId(req.params.commentId))
+
+        if (comment) {
+          const reply = comment.replies.create(Object.assign({}, req.body.reply, {
+            lastModifiedBy: req.user.name,
+            lastModifiedAt: Date.now(),
+            createdAt: Date.now()
+          }))
+
+          var nReplies = comment.replies.length
+
+          comment.replies.push(reply)
+
+          article.save((err, article) => {
+            if (err) {
+              res.status(400).json({
+                success: false,
+                data: err
+              })
+            } else {
+              res.json({
+                success: true,
+                data: {
+                  reply: article.comments.filter(c => c._id === comment._id)[0].replies[nReplies]
+                }
+              })
+            }
+          })
+        } else {
+          res.status(404).json({
+            success: false,
+            data: {}
+          })
+        }
       } else {
         res.status(404).json({
           success: false,
