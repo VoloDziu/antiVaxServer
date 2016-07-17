@@ -6,7 +6,10 @@ var scheduleSchema = new Schema({
   items: [
     {
       age: String,
-      vaccines: [String]
+      vaccines: [{
+        title: String,
+        url: String
+      }]
     }
   ],
   postScheduleContent: String,
