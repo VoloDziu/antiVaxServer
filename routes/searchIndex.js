@@ -63,7 +63,9 @@ searchIndexRoutes.put('/', isRegistered, isAdmin, (req, res) => {
               var parentPath = ''
               if (isInCategory(a)) {
                 var parent = categoryParentMap[a.type.id]
-                parentPath = `${parent.type.id}/${parent.url}/`
+                if (parent) {
+                  parentPath = `${parent.type.id}/${parent.url}/`
+                }
               }
               var fullUrl = `${parentPath}${a.type.id}/${a.url}`
 
