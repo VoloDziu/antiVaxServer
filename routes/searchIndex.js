@@ -59,7 +59,7 @@ searchIndexRoutes.put('/', isRegistered, isAdmin, (req, res) => {
               return ['vaccines', 'ingridients', 'diseases'].indexOf(article.type.id) !== -1
             }
 
-            var indexData = articles.map(a => {
+            var indexData = articles.filter(a => !a.isDraft).map(a => {
               var parentPath = ''
               if (isInCategory(a)) {
                 var parent = categoryParentMap[a.type.id]

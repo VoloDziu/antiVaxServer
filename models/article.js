@@ -51,16 +51,7 @@ var articleSchema = new Schema({
     required: [true, 'title cannot be empty'],
     unique: true
   },
-  content: {
-    type: String,
-    required: [true, 'content cannot be empty'],
-    validate: {
-      validator: (v) => {
-        return striptags(v) !== ''
-      },
-      message: 'content cannot be empty'
-    }
-  },
+  content: String,
   isPublished: {
     type: Boolean,
     default: false
