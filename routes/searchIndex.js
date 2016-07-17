@@ -67,7 +67,7 @@ searchIndexRoutes.put('/', isRegistered, isAdmin, (req, res) => {
                 })
               }
             })
-            index.saveObjects(indexData, (err, content) => {
+            index.addObjects(indexData, (err, content) => {
               if (err) {
                 res.status(400).json({
                   success: false,
