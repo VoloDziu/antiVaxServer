@@ -8,7 +8,7 @@ var isAdmin = require('../middleware/authorization').isAdmin
 var articleRoutes = express.Router()
 
 // GetAll
-articleRoutes.get('/', isRegistered, isAdmin, (req, res) => {
+articleRoutes.get('/', isRegistered, (req, res) => {
   Article.find({})
     .sort('-createdAt')
     .then(articles => {
@@ -22,7 +22,7 @@ articleRoutes.get('/', isRegistered, isAdmin, (req, res) => {
 })
 
 // Get
-articleRoutes.get('/:articleId', isRegistered, isAdmin, (req, res) => {
+articleRoutes.get('/:articleId', isRegistered, (req, res) => {
   Article.findOne({_id: ObjectId(req.params.articleId)})
     .then(article => {
       if (article) {
