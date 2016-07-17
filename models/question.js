@@ -15,10 +15,6 @@ var questionSchema = new Schema({
     type: String,
     required: [true, 'question cannot be empty']
   },
-  isDeleted: {
-    type: Boolean,
-    default: false
-  },
   isSeen: {
     type: Boolean,
     default: false

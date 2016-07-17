@@ -5,47 +5,37 @@ var User = require('../models/user')
 
 var authRoutes = express.Router()
 
-authRoutes.post('/authenticate', (req, res) => {
+authRoutes.post('/authenticate-credentials', (req, res) => {
   User.findOne({email: req.body.email})
     .then(user => {
-      if (user && !user.isDeleted) {
-        if (user.isEnabled) {
-          if (bcrypt.compareSync(req.body.password, user.password)) {
-            var payload = {
-              id: user.id,
-              name: user.name,
-              admin: user.admin,
-              isEnabled: user.isEnabled,
-              isDeleted: user.isDeleted
-            }
-
-            var token = jwt.sign(payload, process.env.ANTIVAX_SERVER_SECRET, {
-              expiresIn: '72h'
-            })
-
-            user.lastLoggedInAt = Date.now()
-            user.save()
-
-            res.json({
-              success: true,
-              data: {
-                user: user,
-                token: token
-              }
-            })
-          } else {
-            res.status(400).json({
-              success: false,
-              data: {
-                error: 'Wrong password'
-              }
-            })
+      if (user && user.isEnabled) {
+        if (bcrypt.compareSync(req.body.password, user.password)) {
+          var payload = {
+            name: user.name,
+            email: user.email,
+            admin: user.admin,
+            lastLoggedInAt: user.lastLoggedInAt
           }
+
+          var token = jwt.sign(payload, process.env.ANTIVAX_SERVER_SECRET, {
+            expiresIn: '72h'
+          })
+
+          user.lastLoggedInAt = Date.now()
+          user.save()
+
+          res.json({
+            success: true,
+            data: {
+              user: payload,
+              token: token
+            }
+          })
         } else {
-          res.status(422).json({
+          res.status(400).json({
             success: false,
             data: {
-              error: 'Your account has been suspended'
+              error: 'Wrong password'
             }
           })
         }
@@ -53,61 +43,100 @@ authRoutes.post('/authenticate', (req, res) => {
         res.status(422).json({
           success: false,
           data: {
-            error: 'User does not exist'
+            error: 'User does not exist or has been suspended'
           }
         })
       }
     })
 })
 
-authRoutes.post('/admin/authenticate', (req, res) => {
-  User.findOne({email: req.body.email})
-  .then(user => {
-    if (user && !user.isDeleted) {
-      if (user.isEnabled) {
-        if (user.admin) {
-          if (bcrypt.compareSync(req.body.password, user.password)) {
-            var payload = {
-              id: user.id,
-              name: user.name,
-              admin: user.admin
-            }
+authRoutes.post('/authenticate-token', (req, res) => {
+  try {
+    const decodedUser = jwt.verify(req.body.token, process.env.ANTIVAX_SERVER_SECRET)
 
-            var token = jwt.sign(payload, process.env.ANTIVAX_SERVER_SECRET, {
-              expiresIn: '72h'
-            })
-
-            user.lastLoggedInAt = Date.now()
-            user.save()
-
-            res.json({
-              success: true,
-              data: {
-                user: user,
-                token: token
-              }
-            })
-          } else {
-            res.status(400).json({
-              success: false,
-              data: {
-                error: 'Wrong password'
-              }
-            })
+    User.findOne({email: decodedUser.email})
+      .then(user => {
+        if (user && user.isEnabled) {
+          var payload = {
+            name: user.name,
+            email: user.email,
+            admin: user.admin,
+            lastLoggedInAt: user.lastLoggedInAt
           }
+
+          var token = jwt.sign(payload, process.env.ANTIVAX_SERVER_SECRET, {
+            expiresIn: '72h'
+          })
+
+          user.lastLoggedInAt = Date.now()
+          user.save()
+
+          res.json({
+            success: true,
+            data: {
+              user: payload,
+              token: token
+            }
+          })
         } else {
-          res.status(401).json({
+          return res.status(422).json({
             success: false,
             data: {
-              error: 'Your account does not grant admin access'
+              error: 'User does not exist or has been suspended'
+            }
+          })
+        }
+      })
+  } catch (err) {
+    return res.status(401).json({
+      success: false,
+      data: {
+        error: 'Token invalid or expired'
+      }
+    })
+  }
+})
+
+authRoutes.post('/admin/authenticate-credentials', (req, res) => {
+  User.findOne({email: req.body.email})
+  .then(user => {
+    if (user && user.isEnabled) {
+      if (user.admin) {
+        if (bcrypt.compareSync(req.body.password, user.password)) {
+          var payload = {
+            name: user.name,
+            email: user.email,
+            admin: user.admin,
+            lastLoggedInAt: user.lastLoggedInAt
+          }
+
+          var token = jwt.sign(payload, process.env.ANTIVAX_SERVER_SECRET, {
+            expiresIn: '72h'
+          })
+
+          user.lastLoggedInAt = Date.now()
+          user.save()
+
+          res.json({
+            success: true,
+            data: {
+              user: payload,
+              token: token
+            }
+          })
+        } else {
+          res.status(400).json({
+            success: false,
+            data: {
+              error: 'Wrong password'
             }
           })
         }
       } else {
-        res.status(422).json({
+        res.status(401).json({
           success: false,
           data: {
-            error: 'Your account has been suspended'
+            error: 'Your account does not grant admin access'
           }
         })
       }
@@ -115,11 +144,67 @@ authRoutes.post('/admin/authenticate', (req, res) => {
       res.status(422).json({
         success: false,
         data: {
-          error: 'User does not exist'
+          error: 'User does not exist or has been suspended'
         }
       })
     }
   })
+})
+
+authRoutes.post('/admin/authenticate-token', (req, res) => {
+  try {
+    const decodedUser = jwt.verify(req.body.token, process.env.ANTIVAX_SERVER_SECRET)
+
+    User.findOne({email: decodedUser.email})
+      .then(user => {
+        if (user && user.isEnabled) {
+          if (user.admin) {
+            var payload = {
+              name: user.name,
+              email: user.email,
+              admin: user.admin,
+              lastLoggedInAt: user.lastLoggedInAt
+            }
+
+            var token = jwt.sign(payload, process.env.ANTIVAX_SERVER_SECRET, {
+              expiresIn: '72h'
+            })
+
+            user.lastLoggedInAt = Date.now()
+            user.save()
+
+            res.json({
+              success: true,
+              data: {
+                user: payload,
+                token: token
+              }
+            })
+          } else {
+            res.status(401).json({
+              success: false,
+              data: {
+                error: 'Your account does not grant admin access'
+              }
+            })
+          }
+        } else {
+          res.status(422).json({
+            success: false,
+            data: {
+              error: 'User does not exist or has been suspended'
+            }
+          })
+        }
+      })
+  } catch (err) {
+    return res.status(401).json({
+      success: false,
+      data: {
+        error: 'Token invalid or expired'
+      }
+    })
+  }
 })
 
 module.exports = authRoutes

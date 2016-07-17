@@ -27,10 +27,6 @@ var userSchema = new Schema({
     type: Boolean,
     default: true
   },
-  isDeleted: {
-    type: Boolean,
-    default: false
-  },
   lastLoggedInAt: Date,
   createdAt: Date
 })
