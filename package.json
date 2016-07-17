@@ -2,6 +2,7 @@
   "name": "authServer",
   "main": "server.js",
   "dependencies": {
+    "algoliasearch": "^3.17.0",
     "bcrypt": "^0.8.7",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",

@@ -9,6 +9,7 @@ var usersRoutes = require('./routes/users')
 var questionsRoutes = require('./routes/questions')
 var articleRoutes = require('./routes/articles')
 var scheduleRoutes = require('./routes/schedule')
+var searchIndexRoutes = require('./routes/searchIndex')
 
 var port = process.env.PORT || 3000
 mongoose.connect(`mongodb://${process.env.ANTIVAX_SERVER_DB_USER}:${process.env.ANTIVAX_SERVER_DB_PASS}@${process.env.ANTIVAX_SERVER_DB_HOST}/${process.env.ANTIVAX_SERVER_DB_NAME}`)
@@ -41,4 +42,5 @@ app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/users`, usersRoutes)
 app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/questions`, questionsRoutes)
 app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/articles`, articleRoutes)
 app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/schedule`, scheduleRoutes)
+app.use(`${process.env.ANTIVAX_SERVER_API_PREFIX}/searchIndex`, searchIndexRoutes)
 app.listen(port)

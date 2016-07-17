@@ -58,7 +58,7 @@ scheduleRoutes.put('/', isRegistered, isAdmin, (req, res) => {
         schedule.lastModifiedBy = req.user.name
         schedule.lastModifiedAt = Date.now()
 
-        schedule.save((err, section) => {
+        schedule.save((err, schedule) => {
           if (err) {
             res.status(400).json({
               success: false,
