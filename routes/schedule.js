@@ -18,9 +18,25 @@ scheduleRoutes.get('/', isRegistered, (req, res) => {
           }
         })
       } else {
-        res.status(404).json({
-          success: false,
-          data: {}
+        var newSchedule = new Schedule({
+          items: [],
+          postScheduleContent: ''
+        })
+
+        newSchedule.save((err, schedule) => {
+          if (err) {
+            res.status(400).json({
+              success: false,
+              data: err
+            })
+          } else {
+            res.json({
+              success: true,
+              data: {
+                schedule
+              }
+            })
+          }
         })
       }
     })
