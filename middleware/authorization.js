@@ -6,9 +6,6 @@ var isRegistered = (req, res, next) => {
   if (token) {
     try {
       const user = jwt.verify(token, process.env.ANTIVAX_SERVER_SECRET)
-      if (user.isDeleted || !user.isEnabled) {
-        throw new Error()
-      }
       req.user = user
       next()
     } catch (err) {
