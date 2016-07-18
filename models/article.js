@@ -58,14 +58,7 @@ var articleSchema = new Schema({
   createdAt: Date,
   lastModifiedBy: String,
   lastModifiedAt: Date,
-  category: {
-    type: String,
-    default: ''
-  },
-  schedule: {
-    type: Boolean,
-    default: false
-  },
+  attachment: String,
   comments: {
     type: [commentSchema],
     default: []
