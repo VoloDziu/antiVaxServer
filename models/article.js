@@ -1,6 +1,5 @@
 var mongoose = require('mongoose')
 var uniqueValidator = require('mongoose-unique-validator')
-var striptags = require('striptags')
 mongoose.Promise = require('bluebird')
 var Schema = mongoose.Schema
 
@@ -59,7 +58,14 @@ var articleSchema = new Schema({
   createdAt: Date,
   lastModifiedBy: String,
   lastModifiedAt: Date,
-  category: String,
+  category: {
+    type: String,
+    default: ''
+  },
+  schedule: {
+    type: Boolean,
+    default: false
+  },
   comments: {
     type: [commentSchema],
     default: []

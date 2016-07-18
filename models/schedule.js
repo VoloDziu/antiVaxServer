@@ -12,7 +12,6 @@ var scheduleSchema = new Schema({
       }]
     }
   ],
-  postScheduleContent: String,
   lastModifiedBy: String,
   lastModifiedAt: Date
 })

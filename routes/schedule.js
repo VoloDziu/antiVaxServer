@@ -19,8 +19,7 @@ scheduleRoutes.get('/', isRegistered, (req, res) => {
         })
       } else {
         var newSchedule = new Schedule({
-          items: [],
-          postScheduleContent: ''
+          items: []
         })
 
         newSchedule.save((err, schedule) => {
