@@ -60,20 +60,11 @@ searchIndexRoutes.put('/', isRegistered, isAdmin, (req, res) => {
             }
 
             var indexData = articles.filter(a => a.isPublished).map(a => {
-              var parentPath = ''
-              if (isInCategory(a)) {
-                var parent = categoryParentMap[a.type.id]
-                if (parent) {
-                  parentPath = `${parent.type.id}/${parent.url}/`
-                }
-              }
-              var fullUrl = `${parentPath}${a.type.id}/${a.url}`
-
               return {
                 url: a.url,
+                type: a.type,
                 title: a.title,
-                content: a.content,
-                fullUrl
+                content: a.content
               }
             })
 
