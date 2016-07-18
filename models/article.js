@@ -50,7 +50,10 @@ var articleSchema = new Schema({
     required: [true, 'title cannot be empty'],
     unique: true
   },
-  snippet: String,
+  snippet: {
+    type: String,
+    default: ''
+  },
   content: String,
   isPublished: {
     type: Boolean,
