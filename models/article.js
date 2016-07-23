@@ -9,9 +9,9 @@ var replySchema = new Schema({
     type: String,
     validate: {
       validator: (v) => striptags(v) !== '',
-      message: 'content cannot be empty'
+      message: 'reply cannot be empty'
     },
-    required: [true, 'content cannot be empty']
+    required: [true, 'reply cannot be empty']
   },
   createdAt: Date,
   lastModifiedBy: String,
@@ -23,9 +23,9 @@ var commentSchema = new Schema({
     type: String,
     validate: {
       validator: (v) => striptags(v) !== '',
-      message: 'content cannot be empty'
+      message: 'comment cannot be empty'
     },
-    required: [true, 'content cannot be empty']
+    required: [true, 'comment cannot be empty']
   },
   createdAt: Date,
   lastModifiedBy: String,
