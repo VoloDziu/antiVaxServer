@@ -2,10 +2,15 @@ var mongoose = require('mongoose')
 var uniqueValidator = require('mongoose-unique-validator')
 mongoose.Promise = require('bluebird')
 var Schema = mongoose.Schema
+var striptags = require('striptags')
 
 var replySchema = new Schema({
   content: {
     type: String,
+    validate: {
+      validator: (v) => striptags(v) !== '',
+      message: 'content cannot be empty'
+    },
     required: [true, 'content cannot be empty']
   },
   createdAt: Date,
@@ -16,6 +21,10 @@ var replySchema = new Schema({
 var commentSchema = new Schema({
   content: {
     type: String,
+    validate: {
+      validator: (v) => striptags(v) !== '',
+      message: 'content cannot be empty'
+    },
     required: [true, 'content cannot be empty']
   },
   createdAt: Date,

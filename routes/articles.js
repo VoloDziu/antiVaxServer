@@ -143,7 +143,10 @@ articleRoutes.post('/:articleId/comments/', isRegistered, (req, res) => {
 
         var nComments = article.comments.length
 
-        article.comments.push(comment)
+        article.comments = [
+          comment,
+          ...article.comments
+        ]
 
         article.save((err, article) => {
           if (err) {

@@ -1,6 +1,7 @@
 var mongoose = require('mongoose')
 mongoose.Promise = require('bluebird')
 var Schema = mongoose.Schema
+var striptags = require('striptags')
 
 var questionSchema = new Schema({
   posterName: {
@@ -13,6 +14,10 @@ var questionSchema = new Schema({
   },
   question: {
     type: String,
+    validate: {
+      validator: (v) => striptags(v) !== '',
+      message: 'question cannot be empty'
+    },
     required: [true, 'question cannot be empty']
   },
   isSeen: {
