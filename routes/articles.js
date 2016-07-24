@@ -90,7 +90,8 @@ articleRoutes.post('/', isRegistered, isAdmin, (req, res) => {
   var article = new Article(Object.assign({}, req.body.article, {
     lastModifiedBy: req.user.name,
     lastModifiedAt: Date.now(),
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    order: 0
   }))
 
   article.save((err, article) => {

@@ -44,6 +44,7 @@ var articleSchema = new Schema({
     unique: true
     // TODO: add no-spaces validation
   },
+  order: Number,
   type: {
     id: {
       type: String,
