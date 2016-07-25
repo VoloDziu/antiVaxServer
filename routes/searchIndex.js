@@ -51,19 +51,16 @@ searchIndexRoutes.put('/', isRegistered, isAdmin, (req, res) => {
         Article.find({})
           .then(articles => {
             var categoryParentMap = {}
-            for (let article of articles.filter(a => a.attachment)) {
-              categoryParentMap[article.type.id] = article
-            }
-
-            var isInCategory = (article) => {
-              return ['vaccines', 'ingridients', 'diseases'].indexOf(article.type.id) !== -1
+            const categoryParents = articles.filter(a => a.attachment)
+            for (let article of categoryParents) {
+              categoryParentMap[article.attachment] = article
             }
 
             var indexData = articles
               .filter(a => a.isPublished)
               .map(a => {
                 let url = ''
-                if (isInCategory(a)) {
+                if (a.type.id === 'vaccines' || a.type.id === 'ingridients' || a.type.id === 'diseases') {
                   url = `${categoryParentMap[a.type.id].type.id}/${categoryParentMap[a.type.id].url}/${a.url}`
                 } else {
                   url = `${a.type.id}/${a.url}`
