@@ -55,8 +55,10 @@ userRoutes.put('/:userId', isRegistered, (req, res) => {
           if (prop !== 'password') {
             user[prop] = req.body.user[prop]
           } else {
-            if (user.password.length > 0) {
+            if (req.body.user.password.trim().length > 0) {
               user.password = bcrypt.hashSync(req.body.user.password, saltRounds)
+            } else {
+              user.password = req.body.user.password
             }
           }
         }
