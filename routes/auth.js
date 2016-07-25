@@ -11,6 +11,7 @@ authRoutes.post('/authenticate-credentials', (req, res) => {
       if (user && user.isEnabled) {
         if (bcrypt.compareSync(req.body.password, user.password)) {
           var payload = {
+            id: user._id,
             name: user.name,
             email: user.email,
             admin: user.admin,
@@ -58,6 +59,7 @@ authRoutes.post('/authenticate-token', (req, res) => {
       .then(user => {
         if (user && user.isEnabled) {
           var payload = {
+            id: user._id,
             name: user.name,
             email: user.email,
             admin: user.admin,

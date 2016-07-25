@@ -44,8 +44,11 @@ userRoutes.get('/:userId', isRegistered, isAdmin, (req, res) => {
 })
 
 // Put
-userRoutes.put('/:userId', isRegistered, isAdmin, (req, res) => {
-  User.findOne({_id: ObjectId(req.params.userId)})
+userRoutes.put('/:userId', isRegistered, (req, res) => {
+  const user = req.user
+
+  if (user.isAdmin || user.id === req.params.userId) {
+    User.findOne({_id: ObjectId(req.params.userId)})
     .then(user => {
       if (user) {
         for (let prop in req.body.user) {
@@ -78,6 +81,14 @@ userRoutes.put('/:userId', isRegistered, isAdmin, (req, res) => {
         })
       }
     })
+  } else {
+    res.status(401).json({
+      success: false,
+      data: {
+        error: 'You are not authorized for this action'
+      }
+    })
+  }
 })
 
 // Create
