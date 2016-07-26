@@ -47,7 +47,7 @@ userRoutes.get('/:userId', isRegistered, isAdmin, (req, res) => {
 userRoutes.put('/:userId', isRegistered, (req, res) => {
   const user = req.user
 
-  if (user.isAdmin || user.id === req.params.userId) {
+  if (user.admin || user.id === req.params.userId) {
     User.findOne({_id: ObjectId(req.params.userId)})
     .then(user => {
       if (user) {
