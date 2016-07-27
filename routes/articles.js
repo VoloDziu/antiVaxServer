@@ -87,11 +87,12 @@ articleRoutes.put('/:articleId', isRegistered, isAdmin, (req, res) => {
 
 // Create
 articleRoutes.post('/', isRegistered, isAdmin, (req, res) => {
+  var nArticles = Article.count({'type.id': req.body.article.type.id})
   var article = new Article(Object.assign({}, req.body.article, {
     lastModifiedBy: req.user.name,
     lastModifiedAt: Date.now(),
     createdAt: Date.now(),
-    order: 0
+    order: nArticles
   }))
 
   article.save((err, article) => {
