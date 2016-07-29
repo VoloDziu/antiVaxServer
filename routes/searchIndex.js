@@ -60,7 +60,7 @@ searchIndexRoutes.put('/', isRegistered, isAdmin, (req, res) => {
               .filter(a => a.isPublished)
               .map(a => {
                 let url = ''
-                if (a.type.id === 'vaccines' || a.type.id === 'ingridients' || a.type.id === 'diseases') {
+                if (a.type.id === 'vaccines' || a.type.id === 'ingredients' || a.type.id === 'diseases') {
                   url = `${categoryParentMap[a.type.id].type.id}/${categoryParentMap[a.type.id].url}/${a.url}`
                 } else {
                   url = `${a.type.id}/${a.url}`
