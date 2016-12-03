@@ -87,28 +87,36 @@ articleRoutes.put('/:articleId', isRegistered, isAdmin, (req, res) => {
 
 // Create
 articleRoutes.post('/', isRegistered, isAdmin, (req, res) => {
-  var nArticles = Article.count({'type.id': req.body.article.type.id})
-  var article = new Article(Object.assign({}, req.body.article, {
-    lastModifiedBy: req.user.name,
-    lastModifiedAt: Date.now(),
-    createdAt: Date.now(),
-    order: nArticles
-  }))
-
-  article.save((err, article) => {
+  Article.count({'type.id': req.body.article.type.id}, (err, nArticles) => {
     if (err) {
       res.status(400).json({
         success: false,
         data: err
       })
-    } else {
-      res.json({
-        success: true,
-        data: {
-          article
-        }
-      })
     }
+
+    var article = new Article(Object.assign({}, req.body.article, {
+      lastModifiedBy: req.user.name,
+      lastModifiedAt: Date.now(),
+      createdAt: Date.now(),
+      order: nArticles
+    }))
+
+    article.save((err, article) => {
+      if (err) {
+        res.status(400).json({
+          success: false,
+          data: err
+        })
+      } else {
+        res.json({
+          success: true,
+          data: {
+            article
+          }
+        })
+      }
+    })
   })
 })
 
