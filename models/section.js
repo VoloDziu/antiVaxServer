@@ -3,7 +3,15 @@ var uniqueValidator = require('mongoose-unique-validator')
 mongoose.Promise = require('bluebird')
 var Schema = mongoose.Schema
 
-var articleSchema = new Schema({
+var sectionItemSchema = new Schema({
+  heading: String,
+  article: {
+    type: Schema.Types.ObjectId,
+    ref: 'Article'
+  }
+})
+
+var sectionSchema = new Schema({
   url: {
     type: String,
     required: [true, 'url cannot be empty'],
@@ -15,17 +23,14 @@ var articleSchema = new Schema({
     type: String,
     required: [true, 'title cannot be empty']
   },
-  content: String,
-  isPublished: {
-    type: Boolean,
-    default: false
+  items: {
+    type: [sectionItemSchema],
+    default: []
   },
   createdAt: Date,
   lastModifiedBy: String,
-  lastModifiedAt: Date,
-  publishedAt: Date,
-  publishedBy: String
+  lastModifiedAt: Date
 })
 
-articleSchema.plugin(uniqueValidator, { message: '{VALUE} is already taken' })
-module.exports = mongoose.model('Article', articleSchema)
+sectionSchema.plugin(uniqueValidator, { message: '{VALUE} is already taken' })
+module.exports = mongoose.model('Section', sectionSchema)
