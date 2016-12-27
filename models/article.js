@@ -37,7 +37,7 @@ var commentSchema = new Schema({
 var articleSchema = new Schema({
   articleType: {
     type: String,
-    enum: ['heading', 'article'],
+    enum: ['heading', 'article', 'blogpost'],
     default: 'article'
   },
   url: {
@@ -69,6 +69,10 @@ var articleSchema = new Schema({
   comments: {
     type: [commentSchema],
     default: []
+  },
+  parent: {
+    type: Schema.Types.ObjectId,
+    ref: 'Navigation'
   }
 })
 

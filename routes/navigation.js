@@ -9,7 +9,7 @@ var navigationRoutes = express.Router()
 
 // Get
 navigationRoutes.get('/', isRegistered, (req, res) => {
-  Navigation.find({isChild: false})
+  Navigation.find({parent: undefined})
     .sort('order')
     .populate({
       path: 'articles',
@@ -34,10 +34,10 @@ navigationRoutes.get('/', isRegistered, (req, res) => {
 
 // Create
 navigationRoutes.post('/', isRegistered, isAdmin, (req, res) => {
-  Navigation.count({isChild: false})
+  Navigation.count({parent: undefined})
     .then(count => {
       let newNavigation = new Navigation(Object.assign({}, req.body.navigation, {
-        order: req.body.navigation.isChild ? -1 : count + 1,
+        order: req.body.navigation.parent ? -1 : count + 1,
         createdAt: Date.now(),
         createdBy: req.user.name,
         lastModifiedAt: Date.now(),
@@ -55,6 +55,24 @@ navigationRoutes.post('/', isRegistered, isAdmin, (req, res) => {
             data: err
           })
         } else {
+          if (newNavigation.parent) {
+            Navigation.findOne({_id: newNavigation.parent})
+              .then(parent => {
+                if (parent) {
+                  parent.children = [
+                    newNavigation._id,
+                    ...parent.children
+                  ]
+
+                  parent.save((err, parent) => {
+                    if (err) {
+                      console.error(err)
+                    }
+                  })
+                }
+              })
+          }
+
           res.json({
             success: true,
             data: {
@@ -74,11 +92,6 @@ navigationRoutes.put('/:navigationId', isRegistered, isAdmin, (req, res) => {
         for (let prop in req.body.navigation) {
           if (prop !== 'children') {
             navigation[prop] = req.body.navigation[prop]
-          } else {
-            navigation.children = [
-              ...navigation.children,
-              ...req.body.navigation.children
-            ]
           }
         }
 
@@ -117,6 +130,26 @@ navigationRoutes.delete('/:navigationId', isRegistered, isAdmin, (req, res) => {
             console.error(err)
           }
         })
+      }
+
+      if (navigation.parent) {
+        Navigation.findOne({_id: ObjectId(navigation.parent)})
+          .then(parent => {
+            if (parent) {
+              let childIndex = parent.children.indexOf(navigation._id)
+
+              parent.children = [
+                ...parent.children.slice(0, childIndex),
+                ...parent.children.slice(childIndex + 1)
+              ]
+
+              parent.save((err, parent) => {
+                if (err) {
+                  console.error(err)
+                }
+              })
+            }
+          })
       }
 
       if (navigation) {

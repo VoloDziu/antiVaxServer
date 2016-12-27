@@ -23,9 +23,10 @@ var navigationSchema = new Schema({
     enum: ['grid', 'list', 'code'],
     default: 'grid'
   },
-  isChild: {
-    type: Boolean,
-    default: false
+  parent: {
+    type: Schema.Types.ObjectId,
+    ref: 'Navigation',
+    default: null
   },
   children: {
     type: [{

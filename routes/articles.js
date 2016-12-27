@@ -2,6 +2,7 @@ var express = require('express')
 var ObjectId = require('mongoose').Types.ObjectId
 
 var Article = require('../models/article')
+var Navigation = require('../models/navigation')
 var isRegistered = require('../middleware/authorization').isRegistered
 var isAdmin = require('../middleware/authorization').isAdmin
 
@@ -82,12 +83,15 @@ articleRoutes.put('/:articleId', isRegistered, isAdmin, (req, res) => {
 // Create
 articleRoutes.post('/', isRegistered, isAdmin, (req, res) => {
   var article = new Article(Object.assign({}, req.body.article, {
-    url: req.body.article && req.body.article.url ? req.body.article.url : Math.random().toString(36).substr(2, 10),
     lastModifiedBy: req.user.name,
     lastModifiedAt: Date.now(),
     createdBy: req.user.name,
     createdAt: Date.now()
   }))
+
+  if (!article.url) {
+    article.url = Math.random().toString(36).substr(2, 10)
+  }
 
   if (req.body.article && req.body.article.isPublished) {
     article.publishedAt = Date.now()
@@ -101,6 +105,22 @@ articleRoutes.post('/', isRegistered, isAdmin, (req, res) => {
         data: err
       })
     } else {
+      if (article.parent) {
+        Navigation.findOne({_id: ObjectId(article.parent)})
+          .then(parent => {
+            parent.articles = [
+              article._id,
+              ...parent.articles
+            ]
+
+            parent.save((err, parent) => {
+              if (err) {
+                console.error(err)
+              }
+            })
+          })
+      }
+
       res.json({
         success: true,
         data: {
@@ -116,6 +136,24 @@ articleRoutes.delete('/:articleId', isRegistered, isAdmin, (req, res) => {
   Article.findOne({_id: ObjectId(req.params.articleId)})
     .then(article => {
       if (article) {
+        Navigation.findOne({_id: ObjectId(article.parent)})
+          .then(parent => {
+            if (parent) {
+              let articleIndex = parent.articles.indexOf(article._id)
+
+              parent.articles = [
+                ...parent.articles.slice(0, articleIndex),
+                ...parent.articles.slice(articleIndex + 1)
+              ]
+
+              parent.save((err, parent) => {
+                if (err) {
+                  console.error(err)
+                }
+              })
+            }
+          })
+
         article.remove()
 
         res.json({
