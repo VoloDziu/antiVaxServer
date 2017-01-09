@@ -3,11 +3,7 @@ var uniqueValidator = require('mongoose-unique-validator')
 mongoose.Promise = require('bluebird')
 var Schema = mongoose.Schema
 
-var navigationSchema = new Schema({
-  order: {
-    type: Number,
-    required: [true, 'order cannot be empty']
-  },
+var sectionSchema = new Schema({
   url: {
     type: String,
     required: [true, 'url cannot be empty'],
@@ -18,20 +14,29 @@ var navigationSchema = new Schema({
     type: String,
     required: [true, 'title cannot be empty']
   },
+  sectionType: {
+    type: String,
+    enum: ['parent', 'articles', 'blogposts', 'custom'],
+    default: 'articles'
+  },
+  meta: {
+    type: Boolean,
+    default: false
+  },
   layout: {
     type: String,
-    enum: ['grid', 'list', 'code'],
-    default: 'grid'
+    enum: ['list', 'grid']
   },
+  customId: String,
   parent: {
     type: Schema.Types.ObjectId,
-    ref: 'Navigation',
+    ref: 'Section',
     default: null
   },
   children: {
     type: [{
       type: Schema.Types.ObjectId,
-      ref: 'Navigation'
+      ref: 'Section'
     }],
     default: []
   },
@@ -48,5 +53,5 @@ var navigationSchema = new Schema({
   lastModifiedAt: Date
 })
 
-navigationSchema.plugin(uniqueValidator, { message: '{VALUE} is already taken' })
-module.exports = mongoose.model('Navigation', navigationSchema)
+sectionSchema.plugin(uniqueValidator, { message: '{VALUE} is already taken' })
+module.exports = mongoose.model('Section', sectionSchema)

@@ -1,8 +1,9 @@
 var express = require('express')
 var ObjectId = require('mongoose').Types.ObjectId
+var striptags = require('striptags')
 
 var Article = require('../models/article')
-var Navigation = require('../models/navigation')
+var Section = require('../models/section')
 var isRegistered = require('../middleware/authorization').isRegistered
 var isAdmin = require('../middleware/authorization').isAdmin
 
@@ -56,6 +57,8 @@ articleRoutes.put('/:articleId', isRegistered, isAdmin, (req, res) => {
           lastModifiedAt: Date.now()
         })
 
+        article.content = striptags(article.content, '<a><h1><h2><b><i><p><ul><ol><li>')
+
         article.save((err, article) => {
           if (err) {
             res.status(400).json({
@@ -82,32 +85,34 @@ articleRoutes.put('/:articleId', isRegistered, isAdmin, (req, res) => {
 
 // Create
 articleRoutes.post('/', isRegistered, isAdmin, (req, res) => {
-  var article = new Article(Object.assign({}, req.body.article, {
-    lastModifiedBy: req.user.name,
-    lastModifiedAt: Date.now(),
-    createdBy: req.user.name,
-    createdAt: Date.now()
-  }))
+  Section.findOne({_id: ObjectId(req.body.article.parent)})
+    .then(parent => {
+      if (parent) {
+        var article = new Article(Object.assign({}, req.body.article, {
+          lastModifiedBy: req.user.name,
+          lastModifiedAt: Date.now(),
+          createdBy: req.user.name,
+          createdAt: Date.now()
+        }))
 
-  if (!article.url) {
-    article.url = Math.random().toString(36).substr(2, 10)
-  }
+        article.content = striptags(article.content, '<a><h1><h2><b><i><p><ul><ol><li>')
 
-  if (req.body.article && req.body.article.isPublished) {
-    article.publishedAt = Date.now()
-    article.publishedBy = req.user.name
-  }
+        if (!article.url) {
+          article.url = Math.random().toString(36).substr(2, 10)
+        }
 
-  article.save((err, article) => {
-    if (err) {
-      res.status(400).json({
-        success: false,
-        data: err
-      })
-    } else {
-      if (article.parent) {
-        Navigation.findOne({_id: ObjectId(article.parent)})
-          .then(parent => {
+        if (req.body.article.isPublished) {
+          article.publishedAt = Date.now()
+          article.publishedBy = req.user.name
+        }
+
+        article.save((err, article) => {
+          if (err) {
+            res.status(400).json({
+              success: false,
+              data: err
+            })
+          } else {
             parent.articles = [
               article._id,
               ...parent.articles
@@ -115,50 +120,21 @@ articleRoutes.post('/', isRegistered, isAdmin, (req, res) => {
 
             parent.save((err, parent) => {
               if (err) {
-                console.error(err)
+                res.status(400).json({
+                  success: false,
+                  data: err
+                })
+              } else {
+                res.json({
+                  success: true,
+                  data: {
+                    article,
+                    parent
+                  }
+                })
               }
             })
-          })
-      }
-
-      res.json({
-        success: true,
-        data: {
-          article
-        }
-      })
-    }
-  })
-})
-
-// Delete
-articleRoutes.delete('/:articleId', isRegistered, isAdmin, (req, res) => {
-  Article.findOne({_id: ObjectId(req.params.articleId)})
-    .then(article => {
-      if (article) {
-        Navigation.findOne({_id: ObjectId(article.parent)})
-          .then(parent => {
-            if (parent) {
-              let articleIndex = parent.articles.indexOf(article._id)
-
-              parent.articles = [
-                ...parent.articles.slice(0, articleIndex),
-                ...parent.articles.slice(articleIndex + 1)
-              ]
-
-              parent.save((err, parent) => {
-                if (err) {
-                  console.error(err)
-                }
-              })
-            }
-          })
-
-        article.remove()
-
-        res.json({
-          success: true,
-          data: {}
+          }
         })
       } else {
         res.status(404).json({
@@ -166,6 +142,46 @@ articleRoutes.delete('/:articleId', isRegistered, isAdmin, (req, res) => {
           data: {}
         })
       }
+    })
+})
+
+// Delete
+articleRoutes.delete('/:articleId', isRegistered, isAdmin, (req, res) => {
+  Article.findOne({_id: ObjectId(req.params.articleId)})
+    .then(article => {
+      Section.findOne({_id: ObjectId(article.parent)})
+        .then(parent => {
+          if (parent && article) {
+            let articleIndex = parent.articles.indexOf(article._id)
+            parent.articles = [
+              ...parent.articles.slice(0, articleIndex),
+              ...parent.articles.slice(articleIndex + 1)
+            ]
+
+            parent.save((err, parent) => {
+              if (err) {
+                res.status(400).json({
+                  success: false,
+                  data: err
+                })
+              } else {
+                article.remove()
+
+                res.json({
+                  success: true,
+                  data: {
+                    parent
+                  }
+                })
+              }
+            })
+          } else {
+            res.status(404).json({
+              success: false,
+              data: {}
+            })
+          }
+        })
     })
 })
 
@@ -178,6 +194,8 @@ articleRoutes.post('/:articleId/comments/', isRegistered, (req, res) => {
           createdBy: req.user.name,
           createdAt: Date.now()
         }))
+
+        comment.content = striptags(comment.content, '<a><h1><h2><b><i><p><ul><ol><li>')
 
         var nComments = article.comments.length
 
@@ -219,6 +237,8 @@ articleRoutes.post('/:articleId/comments/:commentId/replies/', isRegistered, (re
             createdBy: req.user.name,
             createdAt: Date.now()
           }))
+
+          reply.content = striptags(reply.content, '<a><h1><h2><b><i><p><ul><ol><li>')
 
           var nReplies = comment.replies.length
 
