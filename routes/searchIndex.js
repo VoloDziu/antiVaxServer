@@ -56,7 +56,7 @@ searchIndexRoutes.put('/', isRegistered, isAdmin, (req, res) => {
                 var indexData = articles
                 .filter(a => a.isPublished)
                 .map(a => {
-                  let parentUrls = [a.url]
+                  let parentUrls = [`articles/${a.url}`]
 
                   let currentParent = sections.find(s => s._id.equals(a.parent))
                   while (!currentParent.meta) {
