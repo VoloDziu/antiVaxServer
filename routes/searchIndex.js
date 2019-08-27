@@ -59,19 +59,21 @@ searchIndexRoutes.put('/', isRegistered, isAdmin, (req, res) => {
             var indexData = articles
               .filter(a => a.isPublished)
               .map(a => {
-                let url = ''
-                if (a.type.id === 'vaccines' || a.type.id === 'ingredients' || a.type.id === 'diseases') {
-                  url = `${categoryParentMap[a.type.id].type.id}/${categoryParentMap[a.type.id].url}/${a.url}`
-                } else {
-                  url = `${a.type.id}/${a.url}`
+                let parentUrls = [`articles/${a.url}`]
+
+                let currentParent = sections.find(s => s._id.equals(a.parent))
+                while (!currentParent.meta) {
+                  parentUrls = [currentParent.url, ...parentUrls]
+                  currentParent = sections.find(s => s._id.equals(currentParent.parent))
                 }
 
                 return {
-                  url: url,
+                  url: `/${parentUrls.join('/')}`,
                   title: a.title,
                   content: a.content
                 }
               })
+
 
             var index = client.initIndex('pages')
             index.clearIndex((err, content) => {

@@ -12,7 +12,7 @@ var saltRounds = 10
 // GetAll
 userRoutes.get('/', isRegistered, isAdmin, (req, res) => {
   User.find({})
-    .sort('-createdAt')
+    .sort('name')
     .then(users => {
       res.json({
         success: true,
