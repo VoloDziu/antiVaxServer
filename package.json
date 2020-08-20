@@ -3,7 +3,7 @@
   "main": "server.js",
   "dependencies": {
     "algoliasearch": "^3.17.0",
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "jsonwebtoken": "^8.5.1",
