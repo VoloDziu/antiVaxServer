@@ -12,6 +12,6 @@
     "mongoose-json-select": "^0.2.1",
     "mongoose-unique-validator": "^1.0.2",
     "morgan": "^1.7.0",
-    "striptags": "^2.1.1"
+    "striptags": "^3.2.0"
   }
 }
